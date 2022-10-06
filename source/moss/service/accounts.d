@@ -21,6 +21,7 @@ import moss.db.keyvalue.errors;
 import moss.db.keyvalue.interfaces;
 import moss.db.keyvalue.orm;
 import moss.service.models.group;
+import moss.service.models.token;
 import moss.service.models.user;
 import vibe.d;
 
@@ -87,7 +88,7 @@ public final class AccountManager
             .tryMatch!((Database db) => db);
 
         /* Ensure model exists */
-        auto err = userDB.update((scope tx) => tx.createModel!(User, Group));
+        auto err = userDB.update((scope tx) => tx.createModel!(User, Group, Token));
         enforceHTTP(err.isNull, HTTPStatus.internalServerError, err.message);
     }
 
