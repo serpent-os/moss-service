@@ -1,0 +1,17 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/moss-service
+libmoss-service.so
+moss-service.dylib
+moss-service.dll
+libmoss-service.a
+moss-service.lib
+moss-service-test-*
+*.exe
+*.o
+*.obj
+*.lst
+dub.selections.json
+/db
