@@ -23,6 +23,7 @@ import moss.db.keyvalue.orm;
 import moss.service.models.group;
 import moss.service.models.token;
 import moss.service.models.user;
+import std.string : format;
 import vibe.d;
 
 /**
@@ -84,8 +85,8 @@ public final class AccountManager
     this(string dbPath) @safe
     {
         /* Enforce the creation */
-        userDB = Database.open(dbPath, DatabaseFlags.CreateIfNotExists)
-            .tryMatch!((Database db) => db);
+        userDB = Database.open(format!"lmdb://%s"(dbPath),
+                DatabaseFlags.CreateIfNotExists).tryMatch!((Database db) => db);
 
         /* Ensure model exists */
         auto err = userDB.update((scope tx) => tx.createModel!(User, Group, Token));

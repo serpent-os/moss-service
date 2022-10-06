@@ -20,6 +20,7 @@ import moss.db.keyvalue;
 import moss.db.keyvalue.interfaces;
 import std.algorithm : map;
 import std.array : array;
+import std.string : format;
 
 /**
  * Encapsulate BSON serialisation within moss-db
@@ -95,7 +96,8 @@ public final class DBSessionStore : SessionStore
      */
     this(string dbPath) @safe
     {
-        db = Database.open(dbPath, DatabaseFlags.CreateIfNotExists).tryMatch!((Database d) => d);
+        db = Database.open(format!"lmdb://%s"(dbPath),
+                DatabaseFlags.CreateIfNotExists).tryMatch!((Database d) => d);
     }
 
     ~this()
