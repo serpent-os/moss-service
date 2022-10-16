@@ -94,6 +94,19 @@ public final class AccountManager
     }
 
     /**
+     * Close underlying resources
+     */
+    void close()
+    {
+        if (userDB is null)
+        {
+            return;
+        }
+        userDB.close();
+        userDB = null;
+    }
+
+    /**
      * Attempt to register the user.
      *
      * Params:
