@@ -15,14 +15,15 @@
 
 module moss.service.accounts;
 
+public import moss.db.keyvalue.errors;
+public import moss.service.models.user;
+public import std.sumtype;
 import libsodium;
 import moss.db.keyvalue;
-import moss.db.keyvalue.errors;
 import moss.db.keyvalue.interfaces;
 import moss.db.keyvalue.orm;
 import moss.service.models.group;
 import moss.service.models.token;
-import moss.service.models.user;
 import std.string : format;
 import vibe.d;
 
