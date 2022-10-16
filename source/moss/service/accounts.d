@@ -115,7 +115,7 @@ public final class AccountManager
      *      password = New password
      * Returns: Nullable database error
      */
-    DatabaseResult registerUser(string username, string password) @safe
+    DatabaseResult registerUser(string username, string password, string email) @safe
     {
         /* Make sure nobody exists wit that username. */
         {
@@ -133,6 +133,7 @@ public final class AccountManager
         user.hashedPassword = generateSodiumHash(password);
         user.username = username;
         user.type = UserType.Standard;
+        user.email = email;
         return userDB.update((scope tx) => user.save(tx));
     }
 

@@ -62,6 +62,11 @@ public @Model struct User
      */
     @Indexed string username;
 
+    /** 
+     * Primary account username
+     */
+    string email;
+
     /**
      * The users hashed password (libsodium)
      */
