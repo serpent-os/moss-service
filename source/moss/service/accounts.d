@@ -96,7 +96,7 @@ public final class AccountManager
     /**
      * Close underlying resources
      */
-    void close()
+    void close() @safe
     {
         if (userDB is null)
         {
