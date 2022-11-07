@@ -104,6 +104,11 @@ public struct TokenPayload
     string sub;
 
     /**
+     * Issuer: Who actually issued this..
+     */
+    string iss;
+
+    /**
      * Encode as a proper string
      *
      * Returns: JSON string representation
