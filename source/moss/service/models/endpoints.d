@@ -45,6 +45,33 @@ public @Model struct AvalancheEndpoint
     @PrimaryKey string id;
 
     /**
+     * Where can we reach this endpoint?
+     */
+    string hostAddress;
+
+    /**
+     * Encoded public key
+     */
+    string publicKey;
+
+    /**
+     * Visual description for this endpoint's nature
+     *
+     * i.e. sponsored by <such and such>
+     */
+    string description;
+
+    /**
+     * Administrator email address (must be up to date)
+     */
+    string adminEmail;
+
+    /**
+     * Administrator's name
+     */
+    string adminName;
+
+    /**
      * Linked service account
      */
     UserIdentifier serviceAccount;
