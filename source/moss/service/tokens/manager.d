@@ -116,5 +116,5 @@ private:
         testPath.rmdirRecurse();
     }
     testPath.mkdir();
-    auto tm = new TokenManager(".statePath");
+    auto tm = new TokenManager(testPath);
 }
