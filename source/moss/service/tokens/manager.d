@@ -21,6 +21,7 @@ import std.path : buildPath;
 import std.file : exists, rmdirRecurse, mkdir;
 import vibe.d;
 import core.sync.mutex;
+import std.base64 : Base64URLNoPadding;
 
 /**
  * Static subpaths for our token disk storage
@@ -48,6 +49,9 @@ public final class TokenManager
         keyMut = new shared Mutex();
         initSeed();
         initSigningPair();
+
+        /* Public key as usable string */
+        _publicKey = Base64URLNoPadding.encode(signingPair.publicKey);
         lockPrivate();
     }
 
@@ -57,6 +61,14 @@ public final class TokenManager
     void close() @safe
     {
         unlockPrivate();
+    }
+
+    /**
+     * Returns: Base64URLNoPadding encoded public key string
+     */
+    pure @property auto publicKey() @safe @nogc nothrow const
+    {
+        return _publicKey;
     }
 
 private:
@@ -134,6 +146,11 @@ private:
     string stateDir;
 
     /**
+     * Base64URI encoded public key string
+     */
+    string _publicKey;
+
+    /**
      * Instance private signing pair
      */
     TokenSigningPair signingPair;
@@ -163,4 +180,11 @@ private:
     }
     testPath.mkdir();
     auto tm = new TokenManager(testPath);
+    auto originalKey = tm.publicKey();
+    tm.close();
+    tm = new TokenManager(testPath);
+    auto loadedKey = tm.publicKey();
+
+    assert(originalKey == loadedKey, "Failed to load old keys from disk");
+    logInfo(format!"Public key: %s"(originalKey));
 }
