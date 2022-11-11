@@ -47,6 +47,7 @@ public final class TokenManager
         this.stateDir = stateDir;
         keyMut = new shared Mutex();
         initSeed();
+        initSigningPair();
         lockPrivate();
     }
 
@@ -71,14 +72,44 @@ private:
         if (seedPath.exists)
         {
             auto tempSeed = readFile(seedPath);
-            enforce(tempSeed.length == seed.length, "Invalid TokenSeed file");
-            seed = tempSeed;
+            enforce(tempSeed.length == TokenSeed.sizeof, "Invalid TokenSeed file");
+            seed = cast(TokenSeed) tempSeed[0 .. TokenSeed.sizeof];
             return;
         }
 
         /* Create a new seed. */
         seed = createSeed();
         writeFile(NativePath(seedPath), seed);
+    }
+
+    /**
+     * Initialise our signing pair
+     *
+     * Throws: Exception if the keys on disk are corrupt
+     */
+    void initSigningPair() @safe
+    {
+        immutable privPath = stateDir.buildPath(TokenPaths.PrivateKey);
+        immutable pubPath = stateDir.buildPath(TokenPaths.PublicKey);
+
+        /* Load the keypair from disk */
+        if (privPath.exists && pubPath.exists)
+        {
+            auto pub = readFile(pubPath);
+            auto priv = readFile(privPath);
+
+            enforce(pub.length == TokenPublicKey.sizeof, "Invalid public key file");
+            enforce(priv.length == TokenSecretKey.sizeof, "Invalid private key file");
+
+            /* Construct the signing pair from data */
+            signingPair = TokenSigningPair(cast(TokenPublicKey) pub[0 .. TokenPublicKey.sizeof],
+                    cast(TokenSecretKey) priv[0 .. TokenSecretKey.sizeof]);
+        }
+
+        /* Generate new pair */
+        signingPair = TokenSigningPair.create(seed);
+        writeFile(NativePath(privPath), signingPair.secretKey);
+        writeFile(NativePath(pubPath), signingPair.publicKey);
     }
 
     /**
