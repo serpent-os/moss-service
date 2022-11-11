@@ -154,9 +154,18 @@ public final class TokenManager
     {
         TokenPublicKey pubkey;
         auto decoded = Base64URLNoPadding.decode(pubkeyString);
-        enforceHTTP(decoded.length == TokenPublicKey.sizeof, HTTPStatus.internalServerError, "Invalid public key length");
-        pubkey = decoded[0..TokenPublicKey.sizeof];
+        enforceHTTP(decoded.length == TokenPublicKey.sizeof,
+                HTTPStatus.internalServerError, "Invalid public key length");
+        pubkey = decoded[0 .. TokenPublicKey.sizeof];
         return token.verify(pubkey);
+    }
+
+    /** 
+     * Verify a token was created by us
+     */
+    bool verifyOurs(scope const ref Token token) @safe @nogc const
+    {
+        return token.verify(signingPair.publicKey);
     }
 
 private:
@@ -267,7 +276,8 @@ private:
     logInfo(format!"Encoded token: %s"(encoded));
 
     Token decoded = Token.decode(encoded).tryMatch!((Token tk) => tk);
-    assert(tm.verify(decoded, tm.signingPair.publicKey), "Invalid signature");
+    assert(tm.verifyOurs(decoded), "Invalid signature");
+    assert(tm.verify(decoded, originalKey), "Invalid encoding signature");
     assert(decoded.payload == tk.payload, "invalid payload");
     assert(decoded.header == tk.header, "invalid header");
 
