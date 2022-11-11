@@ -17,6 +17,19 @@ module moss.service.tokens.manager;
 
 import moss.service.tokens;
 import libsodium;
+import std.path : buildPath;
+import std.file : exists, rmdirRecurse, mkdir;
+import vibe.d;
+
+/**
+ * Static subpaths for our token disk storage
+ */
+private enum TokenPaths : string
+{
+    Seed = ".seed",
+    PublicKey = ".pubkey",
+    PrivateKey = ".privkey",
+}
 
 /**
  * Provide token management facilities.
@@ -31,10 +44,32 @@ public final class TokenManager
     this(string stateDir) @safe
     {
         this.stateDir = stateDir;
+        initSeed();
         lockPrivate();
     }
 
 private:
+
+    /**
+     * Initialise our Random Seed
+     *
+     * Throws: Exception if the stored seed on disk is invalid
+     */
+    void initSeed() @safe
+    {
+        immutable seedPath = stateDir.buildPath(TokenPaths.Seed);
+        if (seedPath.exists)
+        {
+            auto tempSeed = readFile(seedPath);
+            enforce(tempSeed.length == seed.length, "Invalid TokenSeed file");
+            seed = tempSeed;
+            return;
+        }
+
+        /* Create a new seed. */
+        seed = createSeed();
+        writeFile(NativePath(seedPath), seed);
+    }
 
     /**
      * Lock memory for the private key
@@ -66,4 +101,20 @@ private:
      * Instance specific seed
      */
     TokenSeed seed;
+}
+
+@("Ensure token manager ... works")
+@safe unittest
+{
+    immutable testPath = ".statePath";
+    scope (exit)
+    {
+        testPath.rmdirRecurse();
+    }
+    if (testPath.exists)
+    {
+        testPath.rmdirRecurse();
+    }
+    testPath.mkdir();
+    auto tm = new TokenManager(".statePath");
 }
