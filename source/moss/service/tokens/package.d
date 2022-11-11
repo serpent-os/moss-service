@@ -230,7 +230,7 @@ public struct Token
      *      publicKey = Key that created the signature
      * Returns: true if the signature is valid + verified
      */
-    bool verify(in TokenPublicKey publicKey) @safe
+    bool verify(in TokenPublicKey publicKey) @safe @nogc const
     {
         auto rc = () @trusted {
             return crypto_sign_verify_detached(signature.ptr, signedObject.ptr,
