@@ -147,6 +147,18 @@ public final class TokenManager
         return token.verify(pubkey);
     }
 
+    /**
+     * Verify a token against an encoded public key
+     */
+    bool verify(scope const ref Token token, string pubkeyString) @safe
+    {
+        TokenPublicKey pubkey;
+        auto decoded = Base64URLNoPadding.decode(pubkeyString);
+        enforceHTTP(decoded.length == TokenPublicKey.sizeof, HTTPStatus.internalServerError, "Invalid public key length");
+        pubkey = decoded[0..TokenPublicKey.sizeof];
+        return token.verify(pubkey);
+    }
+
 private:
 
     /**
