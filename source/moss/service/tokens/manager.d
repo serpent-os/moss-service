@@ -23,6 +23,8 @@ import vibe.d;
 import core.sync.mutex;
 import std.base64 : Base64URLNoPadding;
 import std.datetime;
+import std.sumtype : tryMatch;
+import std.exception : enforce;
 
 /**
  * Durations for token validity
@@ -69,7 +71,6 @@ public final class TokenManager
 
         /* Public key as usable string */
         _publicKey = Base64URLNoPadding.encode(signingPair.publicKey);
-        lockPrivate();
     }
 
     /**
@@ -132,11 +133,9 @@ public final class TokenManager
     auto signToken(scope const ref Token token) @safe
     {
         keyMut.lock_nothrow();
-        unlockPrivate();
         scope (exit)
         {
             keyMut.unlock_nothrow();
-            lockPrivate();
         }
 
         return token.sign(signingPair.secretKey);
@@ -196,22 +195,6 @@ private:
     }
 
     /**
-     * Lock memory for the private key
-     */
-    void lockPrivate() @trusted
-    {
-        sodium_mlock(cast(void*) signingPair.secretKey.ptr, signingPair.secretKey.length);
-    }
-
-    /**
-     * Unlock memory for the private key
-     */
-    void unlockPrivate() @trusted
-    {
-        sodium_munlock(cast(void*) signingPair.secretKey.ptr, signingPair.secretKey.length);
-    }
-
-    /**
      * State directory for persistence
      */
     string stateDir;
@@ -240,6 +223,8 @@ private:
 @("Ensure token manager ... works")
 @safe unittest
 {
+    () @trusted { sodium_init(); }();
+
     immutable testPath = ".statePath";
     TokenManager tm;
     scope (exit)
@@ -262,6 +247,6 @@ private:
     logInfo(format!"Public key: %s"(originalKey));
 
     Token tk = tm.createAPIToken(TokenPayload(0, 0, "user", "moss-service"));
-    auto encoded = tm.signToken(tk);
+    immutable encoded = tm.signToken(tk).tryMatch!((string s) => s);
     logInfo(format!"Encoded token: %s"(encoded));
 }
