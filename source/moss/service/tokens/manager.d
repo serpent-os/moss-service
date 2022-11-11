@@ -74,14 +74,6 @@ public final class TokenManager
     }
 
     /**
-     * Handle cleanups
-     */
-    void close() @safe
-    {
-        unlockPrivate();
-    }
-
-    /**
      * Returns: Base64URLNoPadding encoded public key string
      */
     pure @property auto publicKey() @safe @nogc nothrow const
@@ -139,6 +131,18 @@ public final class TokenManager
         }
 
         return token.sign(signingPair.secretKey);
+    }
+
+    /**
+     * Verify a token
+     *
+     * Note: The token must be decoded from a JWT string
+     *
+     * Returns: True if the public key is valid for this token
+     */
+    bool verify(scope const ref Token token, TokenPublicKey pubkey) @safe @nogc const
+    {
+        return token.verify(pubkey);
     }
 
 private:
@@ -229,7 +233,6 @@ private:
     TokenManager tm;
     scope (exit)
     {
-        tm.close();
         testPath.rmdirRecurse();
     }
     if (testPath.exists)
@@ -239,7 +242,6 @@ private:
     testPath.mkdir();
     tm = new TokenManager(testPath);
     immutable originalKey = tm.publicKey();
-    tm.close();
     tm = new TokenManager(testPath);
     immutable loadedKey = tm.publicKey();
 
@@ -249,4 +251,10 @@ private:
     Token tk = tm.createAPIToken(TokenPayload(0, 0, "user", "moss-service"));
     immutable encoded = tm.signToken(tk).tryMatch!((string s) => s);
     logInfo(format!"Encoded token: %s"(encoded));
+
+    Token decoded = Token.decode(encoded).tryMatch!((Token tk) => tk);
+    assert(tm.verify(decoded, tm.signingPair.publicKey), "Invalid signature");
+    assert(decoded.payload == tk.payload, "invalid payload");
+    assert(decoded.header == tk.header, "invalid header");
+
 }
