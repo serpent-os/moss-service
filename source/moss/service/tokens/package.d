@@ -21,6 +21,21 @@ import std.sumtype;
 import vibe.d;
 import vibe.data.json;
 
+/** 
+ * Our JWT claims require a token *purpose*
+ */
+public enum TokenPurpose : string
+{
+    /**
+     * Issuer token
+     */
+    Authorization = "authorize",
+
+    /** 
+      Authentication token
+      */
+    Authentication = "authenticate",
+}
 /**
  * Any potential errors when dealing with tokens
  */
@@ -107,6 +122,11 @@ public struct TokenPayload
      * Issuer: Who actually issued this..
      */
     string iss;
+
+    /** 
+     * Usecase purpose
+     */
+    TokenPurpose purpose = TokenPurpose.Authentication;
 
     /**
      * Encode as a proper string

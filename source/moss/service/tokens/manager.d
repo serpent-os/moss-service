@@ -92,6 +92,7 @@ public final class TokenManager
     {
         Token ret;
         ret.payload = payload;
+        ret.payload.purpose = TokenPurpose.Authorization;
         auto now = Clock.currTime(UTC());
         ret.payload.iat = now.toUnixTime();
         ret.payload.exp = (now + TokenValidity.Bearer).toUnixTime();
@@ -110,6 +111,7 @@ public final class TokenManager
         Token ret;
         ret.payload = payload;
         auto now = Clock.currTime(UTC());
+        ret.payload.purpose = TokenPurpose.Authentication;
         ret.payload.iat = now.toUnixTime();
         ret.payload.exp = (now + TokenValidity.API).toUnixTime();
         return ret;
