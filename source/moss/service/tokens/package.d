@@ -75,7 +75,7 @@ public struct TokenHeader
     /**
      * Encode as JSON
      */
-    auto encoded() @safe
+    auto encoded() @safe const
     {
         return this.serializeToJsonString();
     }
@@ -113,7 +113,7 @@ public struct TokenPayload
      *
      * Returns: JSON string representation
      */
-    auto encoded() @safe
+    auto encoded() @safe const
     {
         return this.serializeToJsonString();
     }
@@ -199,7 +199,7 @@ public struct Token
     /**
      * Sign and encode as a valid JWT
      */
-    SumType!(string, TokenError) sign(in TokenSecretKey secretKey) @safe
+    SumType!(string, TokenError) sign(in TokenSecretKey secretKey) @safe const
     {
         immutable partial = () @trusted {
             return cast(string)(Base64URLNoPadding.encode(cast(ubyte[]) header.encoded())
