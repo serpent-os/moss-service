@@ -31,9 +31,26 @@ public final class TokenManager
     this(string stateDir) @safe
     {
         this.stateDir = stateDir;
+        lockPrivate();
     }
 
 private:
+
+    /**
+     * Lock memory for the private key
+     */
+    void lockPrivate() @trusted
+    {
+        sodium_mlock(cast(void*) signingPair.secretKey.ptr, signingPair.secretKey.length);
+    }
+
+    /**
+     * Unlock memory for the private key
+     */
+    void unlockPrivate() @trusted
+    {
+        sodium_munlock(cast(void*) signingPair.secretKey.ptr, signingPair.secretKey.length);
+    }
 
     /**
      * State directory for persistence
