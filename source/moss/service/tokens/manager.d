@@ -20,6 +20,7 @@ import libsodium;
 import std.path : buildPath;
 import std.file : exists, rmdirRecurse, mkdir;
 import vibe.d;
+import core.sync.mutex;
 
 /**
  * Static subpaths for our token disk storage
@@ -44,8 +45,17 @@ public final class TokenManager
     this(string stateDir) @safe
     {
         this.stateDir = stateDir;
+        keyMut = new shared Mutex();
         initSeed();
         lockPrivate();
+    }
+
+    /**
+     * Handle cleanups
+     */
+    void close() @safe
+    {
+        unlockPrivate();
     }
 
 private:
@@ -101,6 +111,11 @@ private:
      * Instance specific seed
      */
     TokenSeed seed;
+
+    /**
+     * Locking ops
+     */
+    shared Mutex keyMut;
 }
 
 @("Ensure token manager ... works")
