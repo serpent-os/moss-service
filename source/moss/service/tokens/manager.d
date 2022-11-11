@@ -170,8 +170,10 @@ private:
 @safe unittest
 {
     immutable testPath = ".statePath";
+    TokenManager tm;
     scope (exit)
     {
+        tm.close();
         testPath.rmdirRecurse();
     }
     if (testPath.exists)
@@ -179,11 +181,11 @@ private:
         testPath.rmdirRecurse();
     }
     testPath.mkdir();
-    auto tm = new TokenManager(testPath);
-    auto originalKey = tm.publicKey();
+    tm = new TokenManager(testPath);
+    immutable originalKey = tm.publicKey();
     tm.close();
     tm = new TokenManager(testPath);
-    auto loadedKey = tm.publicKey();
+    immutable loadedKey = tm.publicKey();
 
     assert(originalKey == loadedKey, "Failed to load old keys from disk");
     logInfo(format!"Public key: %s"(originalKey));
