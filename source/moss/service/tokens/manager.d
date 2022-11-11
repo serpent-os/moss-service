@@ -22,6 +22,23 @@ import std.file : exists, rmdirRecurse, mkdir;
 import vibe.d;
 import core.sync.mutex;
 import std.base64 : Base64URLNoPadding;
+import std.datetime;
+
+/**
+ * Durations for token validity
+ */
+private enum TokenValidity : Duration
+{
+    /**
+     * API tokens are valid for 1 hour
+     */
+    API = 1.hours,
+
+    /**
+     * Bearer tokens are valid for 7 days
+     */
+    Bearer = 7.days,
+}
 
 /**
  * Static subpaths for our token disk storage
@@ -69,6 +86,60 @@ public final class TokenManager
     pure @property auto publicKey() @safe @nogc nothrow const
     {
         return _publicKey;
+    }
+
+    /**
+     * Construct a bearer token The Right Way
+     *
+     * Params:
+     *      payload = Populated payload
+     * Returns: Correct Token with expiry set
+     */
+    Token createBearerToken(TokenPayload payload) @safe
+    {
+        Token ret;
+        ret.payload = payload;
+        auto now = Clock.currTime(UTC());
+        ret.payload.iat = now.toUnixTime();
+        ret.payload.exp = (now + TokenValidity.Bearer).toUnixTime();
+        return ret;
+    }
+
+    /**
+     * Construct an API token The Right Way
+     *
+     * Params:
+     *      payload = Populated payload
+     * Returns: Correct Token with expiry set
+     */
+    Token createAPIToken(TokenPayload payload) @safe
+    {
+        Token ret;
+        ret.payload = payload;
+        auto now = Clock.currTime(UTC());
+        ret.payload.iat = now.toUnixTime();
+        ret.payload.exp = (now + TokenValidity.API).toUnixTime();
+        return ret;
+    }
+
+    /**
+     * Sign and encode a token using our secret key
+     *
+     * Params:
+     *      token = Valid input token
+     * Returns: Signed + encoded token ready for use.
+     */
+    auto signToken(scope const ref Token token) @safe
+    {
+        keyMut.lock_nothrow();
+        unlockPrivate();
+        scope (exit)
+        {
+            keyMut.unlock_nothrow();
+            lockPrivate();
+        }
+
+        return token.sign(signingPair.secretKey);
     }
 
 private:
@@ -189,4 +260,8 @@ private:
 
     assert(originalKey == loadedKey, "Failed to load old keys from disk");
     logInfo(format!"Public key: %s"(originalKey));
+
+    Token tk = tm.createAPIToken(TokenPayload(0, 0, "user", "moss-service"));
+    auto encoded = tm.signToken(tk);
+    logInfo(format!"Encoded token: %s"(encoded));
 }
