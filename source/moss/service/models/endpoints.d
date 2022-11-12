@@ -44,6 +44,16 @@ public @Model struct VesselEndpoint
     @PrimaryKey string id;
 
     /**
+     * Pairing status
+     */
+    EndpointStatus status;
+
+    /**
+     * Status display
+     */
+    string statusText;
+
+    /**
      * Linked service account
      */
     UserIdentifier serviceAccount;
