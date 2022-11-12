@@ -18,6 +18,21 @@ module moss.service.models.endpoints;
 public import moss.db.keyvalue.orm;
 public import moss.service.models.user : UserIdentifier;
 
+public enum EndpointStatus
+{
+    /* i.e avalanche admin needs to accept summit pairing */
+    AwaitingAcceptance = 0,
+
+    /* Summit sent a request, awaiting enrol now */
+    AwaitingEnrolment,
+
+    /* Declined or failed. */
+    Failed,
+
+    /* Up and running */
+    Operational,
+}
+
 /**
  * Persistence of a vessel endpoint
  */
@@ -72,6 +87,16 @@ public @Model struct AvalancheEndpoint
     string adminName;
 
     /**
+     * Status
+     */
+    EndpointStatus status;
+
+    /**
+     * Special display text
+     */
+    string statusText;
+
+    /**
      * Linked service account
      */
     UserIdentifier serviceAccount;
@@ -86,6 +111,26 @@ public @Model struct SummitEndpoint
      * Unique identifier for the endpoint
      */
     @PrimaryKey string id;
+
+    /**
+     * API endpoint address
+     */
+    string hostAddress;
+
+    /**
+     * Public key for the instance
+     */
+    string publicKey;
+
+    /**
+     * Status
+     */
+    EndpointStatus status;
+
+    /**
+     * Special display text
+     */
+    string statusText;
 
     /**
      * Linked service account
