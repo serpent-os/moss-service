@@ -159,6 +159,11 @@ public final class AccountManager
             {
                 return noUser;
             }
+            /* Disallow non-standard authentication */
+            if (lookup.type != UserType.Standard)
+            {
+                return noUser;
+            }
             /* Check the password is right */
             if (!sodiumHashMatch(lookup.hashedPassword, password))
             {
