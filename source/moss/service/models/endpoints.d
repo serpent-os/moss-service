@@ -58,7 +58,7 @@ public struct EndpointToken
     /**
      * When does API Token expire (UTC) ?
      */
-    uint64_t apiExpirty;
+    uint64_t apiExpiry;
 }
 
 /**
