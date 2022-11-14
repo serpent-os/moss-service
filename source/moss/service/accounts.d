@@ -28,6 +28,12 @@ import std.string : format;
 import vibe.d;
 
 /**
+ * All service accounts are prefixed with svc- and cannot be used
+ * by normal users.
+ */
+public static immutable string serviceAccountPrefix = "@";
+
+/**
  * Attempt to determine authentication from the current web context
  *
  * Note this is not the same thing as authorisation, that is handled
@@ -117,6 +123,13 @@ public final class AccountManager
      */
     DatabaseResult registerUser(string username, string password, string email) @safe
     {
+        /* Prevent use of a service identity */
+        if (username.startsWith(serviceAccountPrefix))
+        {
+            return DatabaseResult(DatabaseError(DatabaseErrorCode.BucketExists,
+                    "Users may not register service prefix accounts"));
+        }
+
         /* Make sure nobody exists wit that username. */
         {
             User lookupUser;
