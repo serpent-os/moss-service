@@ -33,6 +33,34 @@ public enum EndpointStatus
     Operational,
 }
 
+/** 
+ * To talk with an endpoint we need access tokens,
+ * as it is an outgoing connection not a local service
+ * account.
+ */
+public struct EndpointToken
+{
+    /**
+     * Raw Bearer JWT
+     */
+    string bearer;
+
+    /**
+     * When does Bearer Token expire (UTC) ?
+     */
+    uint64_t bearerExpiry;
+
+    /**
+     * Raw API JWT
+     */
+    string api;
+
+    /**
+     * When does API Token expire (UTC) ?
+     */
+    uint64_t apiExpirty;
+}
+
 /**
  * Persistence of a vessel endpoint
  */
