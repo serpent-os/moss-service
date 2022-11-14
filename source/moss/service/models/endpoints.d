@@ -18,6 +18,8 @@ module moss.service.models.endpoints;
 public import moss.db.keyvalue.orm;
 public import moss.service.models.user : UserIdentifier;
 
+public import std.stdint : uint64_t;
+
 public enum EndpointStatus
 {
     /* i.e avalanche admin needs to accept summit pairing */
