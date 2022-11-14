@@ -23,7 +23,6 @@ import moss.db.keyvalue;
 import moss.db.keyvalue.interfaces;
 import moss.db.keyvalue.orm;
 import moss.service.models.group;
-import moss.service.models.token;
 import std.string : format;
 import vibe.d;
 
@@ -90,7 +89,7 @@ public final class AccountManager
                 DatabaseFlags.CreateIfNotExists).tryMatch!((Database db) => db);
 
         /* Ensure model exists */
-        auto err = userDB.update((scope tx) => tx.createModel!(User, Group, Token));
+        auto err = userDB.update((scope tx) => tx.createModel!(User, Group));
         enforceHTTP(err.isNull, HTTPStatus.internalServerError, err.message);
     }
 

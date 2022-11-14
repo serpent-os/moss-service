@@ -17,5 +17,4 @@ module moss.service.models;
 
 public import moss.service.models.endpoints;
 public import moss.service.models.group;
-public import moss.service.models.token;
 public import moss.service.models.user;
