@@ -195,6 +195,43 @@ public final class AccountManager
         return SumType!(User, DatabaseError)(err);
     }
 
+    /**
+     * Register a service account
+     *
+     * Params:
+     *      username = Service username
+     *      email = Potential contact point
+     * Returns: Nullable database error
+     */
+    DatabaseResult registerService(string username, string email) @safe
+    {
+        /* Enforce use of a service identity */
+        if (!username.startsWith(serviceAccountPrefix))
+        {
+            return DatabaseResult(DatabaseError(DatabaseErrorCode.BucketExists,
+                    "Services must register service prefixed accounts"));
+        }
+
+        /* Make sure nobody exists with that username. */
+        {
+            User lookupUser;
+            immutable err = userDB.view((in tx) => lookupUser.load!"username"(tx, username));
+            if (err.isNull)
+            {
+                return DatabaseResult(DatabaseError(DatabaseErrorCode.BucketExists,
+                        "Service identity already taken"));
+            }
+        }
+
+        /* Register the new user */
+        auto user = User();
+        user.hashedPassword = "serviceAccount";
+        user.username = username;
+        user.type = UserType.Service;
+        user.email = email;
+        return userDB.update((scope tx) => user.save(tx));
+    }
+
 private:
 
     Database userDB;
