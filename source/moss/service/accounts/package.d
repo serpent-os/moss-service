@@ -16,6 +16,7 @@
 module moss.service.accounts;
 
 public import moss.db.keyvalue.errors;
+public import moss.service.models.credential;
 public import moss.service.models.user;
 public import std.sumtype;
 import libsodium;
@@ -96,7 +97,7 @@ public final class AccountManager
                 DatabaseFlags.CreateIfNotExists).tryMatch!((Database db) => db);
 
         /* Ensure model exists */
-        auto err = userDB.update((scope tx) => tx.createModel!(User, Group, BearerToken));
+        auto err = userDB.update((scope tx) => tx.createModel!(Credential, User, Group, BearerToken));
         enforceHTTP(err.isNull, HTTPStatus.internalServerError, err.message);
     }
 
