@@ -31,51 +31,6 @@ import vibe.d;
 import moss.service.accounts : serviceAccountPrefix;
 
 /**
- * Attempt to determine authentication from the current web context
- *
- * Note this is not the same thing as authorisation, that is handled
- * by tokens and permissions.
- */
-public struct ServiceAuthentication
-{
-    /**
-     * Construct a ServiceAuthentication helper from the given
-     * HTTP connection
-     * To make use of this, simply construct and return the type from
-     * your APIs authenticate(req, res) method and it will do the rest.
-     */
-    this(scope return AccountManager accountManager, scope HTTPServerRequest req,
-            scope HTTPServerResponse res) @safe
-    {
-        throw new HTTPStatusException(HTTPStatus.forbidden, "no permissions implemented sorry");
-    }
-
-    /**
-     * Remote access tokens - sessions are invalid.
-     *
-     * Returns: true if using a remote access token
-     */
-    pure bool isRemoteAccess() @safe @nogc nothrow
-    {
-        return false;
-    }
-}
-
-/**
- * Generate boilerplate needed to get authentication working
- *
- * You will need an accountManager instance available.
- */
-mixin template AppAuthenticator()
-{
-    @noRoute public ServiceAuthentication authenticate(scope HTTPServerRequest req,
-            scope HTTPServerResponse res) @safe
-    {
-        return ServiceAuthentication(accountManager, req, res);
-    }
-}
-
-/**
  * The AccountManager hosts all account management within
  * its own DB tree.
  */

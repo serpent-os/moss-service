@@ -15,6 +15,7 @@
 
 module moss.service.accounts;
 
+public import moss.service.accounts.auth;
 public import moss.service.accounts.manager;
 
 /**
