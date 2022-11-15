@@ -21,7 +21,7 @@ import std.sumtype;
 import vibe.d;
 import vibe.data.json;
 
-import moss.service.models.user : UserIdentifier, UserType;
+import moss.service.models.account : AccountIdentifier, AccountType;
 
 /** 
  * Our JWT claims require a token *purpose*
@@ -128,12 +128,12 @@ public struct TokenPayload
     /**
      * User ID
      */
-    UserIdentifier uid = 0;
+    AccountIdentifier uid = 0;
 
     /**
      * Account *type*
      */
-    UserType act = UserType.Standard;
+    AccountType act = AccountType.Standard;
 
     /** 
      * Usecase purpose

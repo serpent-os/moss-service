@@ -16,8 +16,8 @@
 module moss.service.accounts.manager;
 
 public import moss.db.keyvalue.errors;
+public import moss.service.models.account;
 public import moss.service.models.credential;
-public import moss.service.models.user;
 public import std.sumtype;
 import libsodium;
 import moss.db.keyvalue;
@@ -89,12 +89,12 @@ public final class AccountManager
     this(string dbPath) @safe
     {
         /* Enforce the creation */
-        userDB = Database.open(format!"lmdb://%s"(dbPath),
+        accountDB = Database.open(format!"lmdb://%s"(dbPath),
                 DatabaseFlags.CreateIfNotExists).tryMatch!((Database db) => db);
 
         /* Ensure model exists */
-        auto err = userDB.update((scope tx) => tx.createModel!(Credential, User,
-                Group, BearerToken));
+        auto err = accountDB.update((scope tx) => tx.createModel!(Credential,
+                Account, Group, BearerToken));
         enforceHTTP(err.isNull, HTTPStatus.internalServerError, err.message);
     }
 
@@ -103,12 +103,12 @@ public final class AccountManager
      */
     void close() @safe
     {
-        if (userDB is null)
+        if (accountDB is null)
         {
             return;
         }
-        userDB.close();
-        userDB = null;
+        accountDB.close();
+        accountDB = null;
     }
 
     /**
@@ -130,8 +130,8 @@ public final class AccountManager
 
         /* Make sure nobody exists with that username. */
         {
-            User lookupUser;
-            immutable err = userDB.view((in tx) => lookupUser.load!"username"(tx, username));
+            Account lookupAccount;
+            immutable err = accountDB.view((in tx) => lookupAccount.load!"username"(tx, username));
             if (err.isNull)
             {
                 return DatabaseResult(DatabaseError(DatabaseErrorCode.BucketExists,
@@ -140,18 +140,18 @@ public final class AccountManager
         }
 
         /* Register the new user */
-        auto user = User();
+        auto user = Account();
         auto cred = Credential();
         cred.hashedPassword = generateSodiumHash(password);
         user.username = username;
-        user.type = UserType.Standard;
+        user.type = AccountType.Standard;
         user.email = email;
-        immutable userErr = userDB.update((scope tx) => user.save(tx));
+        immutable userErr = accountDB.update((scope tx) => user.save(tx));
         if (!userErr.isNull)
         {
             return userErr;
         }
-        return userDB.update((scope tx) => cred.save(tx));
+        return accountDB.update((scope tx) => cred.save(tx));
     }
 
     /**
@@ -164,23 +164,23 @@ public final class AccountManager
      *      password = Registered password
      * Returns: Nullable database error
      */
-    SumType!(User, DatabaseError) authenticateUser(string username, string password) @safe
+    SumType!(Account, DatabaseError) authenticateUser(string username, string password) @safe
     {
-        User lookup;
-        static auto noUser = DatabaseResult(DatabaseError(DatabaseErrorCode.BucketNotFound,
+        Account lookup;
+        static auto noAccount = DatabaseResult(DatabaseError(DatabaseErrorCode.BucketNotFound,
                 "Username or password incorrect"));
 
-        immutable err = userDB.view((in tx) @safe {
+        immutable err = accountDB.view((in tx) @safe {
             /* Check if the user exists first :) */
             immutable err = lookup.load!"username"(tx, username);
             if (!err.isNull)
             {
-                return noUser;
+                return noAccount;
             }
             /* Disallow non-standard authentication */
-            if (lookup.type != UserType.Standard)
+            if (lookup.type != AccountType.Standard)
             {
-                return noUser;
+                return noAccount;
             }
             /* Check credential storage */
             Credential cred;
@@ -192,16 +192,16 @@ public final class AccountManager
             /* Check the password is right */
             if (!sodiumHashMatch(cred.hashedPassword, password))
             {
-                return noUser;
+                return noAccount;
             }
             return NoDatabaseError;
         });
-        /* You can haz User now */
+        /* You can haz Account now */
         if (err.isNull)
         {
-            return SumType!(User, DatabaseError)(lookup);
+            return SumType!(Account, DatabaseError)(lookup);
         }
-        return SumType!(User, DatabaseError)(err);
+        return SumType!(Account, DatabaseError)(err);
     }
 
     /**
@@ -212,34 +212,34 @@ public final class AccountManager
      *      email = Potential contact point
      * Returns: Nullable database error
      */
-    SumType!(User, DatabaseError) registerService(string username, string email) @safe
+    SumType!(Account, DatabaseError) registerService(string username, string email) @safe
     {
         /* Enforce use of a service identity */
         if (!username.startsWith(serviceAccountPrefix))
         {
-            return SumType!(User, DatabaseError)(DatabaseError(DatabaseErrorCode.BucketExists,
+            return SumType!(Account, DatabaseError)(DatabaseError(DatabaseErrorCode.BucketExists,
                     "Services must register service prefixed accounts"));
         }
 
         /* Make sure nobody exists with that username. */
         {
-            User lookupUser;
-            immutable err = userDB.view((in tx) => lookupUser.load!"username"(tx, username));
+            Account lookupAccount;
+            immutable err = accountDB.view((in tx) => lookupAccount.load!"username"(tx, username));
             if (err.isNull)
             {
-                return SumType!(User, DatabaseError)(DatabaseError(DatabaseErrorCode.BucketExists,
+                return SumType!(Account, DatabaseError)(DatabaseError(DatabaseErrorCode.BucketExists,
                         "Service identity already taken"));
             }
         }
 
         /* Register the new user */
-        auto user = User();
+        auto user = Account();
         user.username = username;
-        user.type = UserType.Service;
+        user.type = AccountType.Service;
         user.email = email;
-        immutable err = userDB.update((scope tx) => user.save(tx));
-        return err.isNull ? SumType!(User,
-                DatabaseError)(user) : SumType!(User, DatabaseError)(err);
+        immutable err = accountDB.update((scope tx) => user.save(tx));
+        return err.isNull ? SumType!(Account,
+                DatabaseError)(user) : SumType!(Account, DatabaseError)(err);
     }
 
     /**
@@ -250,24 +250,24 @@ public final class AccountManager
      *     token = New bearer token
      * Returns: Nullable database error
      */
-    DatabaseResult setBearerToken(in User user, BearerToken token) @safe
+    DatabaseResult setBearerToken(in Account user, BearerToken token) @safe
     {
         token.id = user.id;
 
-        /* User MUST exist */
-        User lookup;
-        immutable err = userDB.view((in tx) => lookup.load(tx, user.id));
+        /* Account MUST exist */
+        Account lookup;
+        immutable err = accountDB.view((in tx) => lookup.load(tx, user.id));
         if (!err.isNull)
         {
             return err;
         }
 
-        return userDB.update((scope tx) => token.save(tx));
+        return accountDB.update((scope tx) => token.save(tx));
     }
 
 private:
 
-    Database userDB;
+    Database accountDB;
 }
 
 /**

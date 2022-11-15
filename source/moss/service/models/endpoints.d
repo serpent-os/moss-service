@@ -16,7 +16,7 @@
 module moss.service.models.endpoints;
 
 public import moss.db.keyvalue.orm;
-public import moss.service.models.user : UserIdentifier;
+public import moss.service.models.account : AccountIdentifier;
 
 public import std.stdint : uint64_t;
 
@@ -86,7 +86,7 @@ public @Model struct VesselEndpoint
     /**
      * Linked service account
      */
-    UserIdentifier serviceAccount;
+    AccountIdentifier serviceAccount;
 }
 
 /**
@@ -139,7 +139,7 @@ public @Model struct AvalancheEndpoint
     /**
      * Linked service account
      */
-    UserIdentifier serviceAccount;
+    AccountIdentifier serviceAccount;
 }
 
 /**
@@ -175,5 +175,5 @@ public @Model struct SummitEndpoint
     /**
      * Linked service account
      */
-    UserIdentifier serviceAccount;
+    AccountIdentifier serviceAccount;
 }

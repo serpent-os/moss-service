@@ -16,7 +16,7 @@
 module moss.service.models.group;
 
 public import moss.db.keyvalue.orm;
-public import moss.service.models.user : UserIdentifier;
+public import moss.service.models.account : AccountIdentifier;
 public import std.stdint : uint64_t, uint8_t;
 
 /**
@@ -25,7 +25,7 @@ public import std.stdint : uint64_t, uint8_t;
 public alias GroupIdentifier = uint64_t;
 
 /**
- * A Group is a collection of users
+ * A Group is a collection of accounts
  */
 public @Model struct Group
 {
@@ -46,7 +46,7 @@ public @Model struct Group
     string name;
 
     /**
-     * All the users within our group
+     * All the accounts within our group
      */
-    UserIdentifier[] users;
+    AccountIdentifier[] users;
 }

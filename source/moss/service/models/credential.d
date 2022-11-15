@@ -17,7 +17,7 @@ module moss.service.models.credential;
 
 public import moss.db.keyvalue.orm;
 
-public import moss.service.models.user : UserIdentifier;
+public import moss.service.models.account : AccountIdentifier;
 
 /**
  * Access credentials for *user* accounts
@@ -27,7 +27,7 @@ public @Model struct Credential
     /**
      * Each Credential is keyed to a user account
      */
-    @PrimaryKey UserIdentifier id;
+    @PrimaryKey AccountIdentifier id;
 
     /**
      * Hashed password storage

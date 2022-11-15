@@ -16,7 +16,7 @@
 module moss.service.models.bearertoken;
 
 public import moss.db.keyvalue.orm;
-public import moss.service.models.user : UserIdentifier;
+public import moss.service.models.account : AccountIdentifier;
 public import std.stdint : uint64_t;
 
 /**
@@ -30,9 +30,9 @@ public import std.stdint : uint64_t;
 public @Model struct BearerToken
 {
     /**
-     * User ID
+     * Account ID
      */
-    @PrimaryKey UserIdentifier id;
+    @PrimaryKey AccountIdentifier id;
 
     /**
      * Raw token string
