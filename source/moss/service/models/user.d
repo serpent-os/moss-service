@@ -68,11 +68,6 @@ public @Model struct User
     string email;
 
     /**
-     * The users hashed password (libsodium)
-     */
-    string hashedPassword;
-
-    /**
      * What kind of user is this.. ?
      */
     UserType type;

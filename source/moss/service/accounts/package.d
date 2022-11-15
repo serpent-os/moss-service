@@ -97,7 +97,8 @@ public final class AccountManager
                 DatabaseFlags.CreateIfNotExists).tryMatch!((Database db) => db);
 
         /* Ensure model exists */
-        auto err = userDB.update((scope tx) => tx.createModel!(Credential, User, Group, BearerToken));
+        auto err = userDB.update((scope tx) => tx.createModel!(Credential, User,
+                Group, BearerToken));
         enforceHTTP(err.isNull, HTTPStatus.internalServerError, err.message);
     }
 
@@ -144,11 +145,17 @@ public final class AccountManager
 
         /* Register the new user */
         auto user = User();
-        user.hashedPassword = generateSodiumHash(password);
+        auto cred = Credential();
+        cred.hashedPassword = generateSodiumHash(password);
         user.username = username;
         user.type = UserType.Standard;
         user.email = email;
-        return userDB.update((scope tx) => user.save(tx));
+        immutable userErr = userDB.update((scope tx) => user.save(tx));
+        if (!userErr.isNull)
+        {
+            return userErr;
+        }
+        return userDB.update((scope tx) => cred.save(tx));
     }
 
     /**
@@ -179,8 +186,15 @@ public final class AccountManager
             {
                 return noUser;
             }
+            /* Check credential storage */
+            Credential cred;
+            immutable credErr = cred.load(tx, lookup.id);
+            if (!credErr.isNull)
+            {
+                return credErr;
+            }
             /* Check the password is right */
-            if (!sodiumHashMatch(lookup.hashedPassword, password))
+            if (!sodiumHashMatch(cred.hashedPassword, password))
             {
                 return noUser;
             }
@@ -189,8 +203,6 @@ public final class AccountManager
         /* You can haz User now */
         if (err.isNull)
         {
-            /* No hash for u */
-            lookup.hashedPassword = null;
             return SumType!(User, DatabaseError)(lookup);
         }
         return SumType!(User, DatabaseError)(err);
@@ -226,7 +238,6 @@ public final class AccountManager
 
         /* Register the new user */
         auto user = User();
-        user.hashedPassword = "serviceAccount";
         user.username = username;
         user.type = UserType.Service;
         user.email = email;
