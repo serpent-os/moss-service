@@ -102,7 +102,6 @@ public struct TokenHeader
  * Our use of tokens extends a bit beyond the
  * base claims as we don't use 0Auth / OAuth, etc.
  */
- */
 public struct TokenPayload
 {
     /**
