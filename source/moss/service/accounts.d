@@ -234,6 +234,29 @@ public final class AccountManager
                 DatabaseError)(user) : SumType!(User, DatabaseError)(err);
     }
 
+    /**
+     * Update the bearer token associated with the user
+     *
+     * Params:
+     *     user = User account
+     *     token = New bearer token
+     * Returns: Nullable database error
+     */
+    DatabaseResult setBearerToken(in User user, BearerToken token) @safe
+    {
+        token.id = user.id;
+
+        /* User MUST exist */
+        User lookup;
+        immutable err = userDB.view((in tx) => lookup.load(tx, user.id));
+        if (!err.isNull)
+        {
+            return err;
+        }
+
+        return userDB.update((scope tx) => token.save(tx));
+    }
+
 private:
 
     Database userDB;
