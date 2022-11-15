@@ -21,6 +21,19 @@ module moss.service.interfaces;
 
 import vibe.d;
 
+import moss.service.models.endpoints : EndpointStatus;
+
+/**
+ * Enumeration of endpoints
+ */
+public struct VisibleEndpoint
+{
+    string id;
+    string hostAddress;
+    string publicKey;
+    EndpointStatus status;
+}
+
 /**
  * There are known enrolment roles that
  * form a promise in the handshake process
@@ -107,6 +120,11 @@ public interface ServiceEnrolmentAPI
      */
     @path("enrol") @method(HTTPMethod.POST)
     void enrol(ServiceEnrolmentRequest request) @safe;
+
+    /**
+     * Safely enumerate endpoints
+     */
+    @path("enumerate") @method(HTTPMethod.GET) VisibleEndpoint[] enumerate() @safe;
 
     /**
      * Accept an enrolment request
