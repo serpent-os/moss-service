@@ -99,9 +99,9 @@ public struct TokenHeader
 }
 
 /**
- * Our use of the payload only supports the absolute
- * base claims, i.e 7 registered.
- * We also hardcode them. :P
+ * Our use of tokens extends a bit beyond the
+ * base claims as we don't use 0Auth / OAuth, etc.
+ */
  */
 public struct TokenPayload
 {
