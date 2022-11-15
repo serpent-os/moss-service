@@ -16,3 +16,9 @@
 module moss.service.accounts;
 
 public import moss.service.accounts.manager;
+
+/**
+ * All service accounts are prefixed with svc- and cannot be used
+ * by normal users.
+ */
+public static immutable string serviceAccountPrefix = "@";

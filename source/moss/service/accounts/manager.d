@@ -28,11 +28,7 @@ import moss.service.models.group;
 import std.string : format;
 import vibe.d;
 
-/**
- * All service accounts are prefixed with svc- and cannot be used
- * by normal users.
- */
-public static immutable string serviceAccountPrefix = "@";
+import moss.service.accounts : serviceAccountPrefix;
 
 /**
  * Attempt to determine authentication from the current web context
