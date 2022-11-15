@@ -16,6 +16,7 @@
 module moss.service.models;
 
 public import moss.service.models.bearertoken;
+public import moss.service.models.credential;
 public import moss.service.models.endpoints;
 public import moss.service.models.group;
 public import moss.service.models.user;
