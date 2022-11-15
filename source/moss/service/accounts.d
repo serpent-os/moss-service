@@ -130,7 +130,7 @@ public final class AccountManager
                     "Users may not register service prefix accounts"));
         }
 
-        /* Make sure nobody exists wit that username. */
+        /* Make sure nobody exists with that username. */
         {
             User lookupUser;
             immutable err = userDB.view((in tx) => lookupUser.load!"username"(tx, username));
