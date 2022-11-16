@@ -72,14 +72,14 @@ public final class AccountManager
      * Params:
      *      username = New user identifier
      *      password = New password
-     * Returns: Nullable database error
+     * Returns: New account or an error
      */
-    DatabaseResult registerUser(string username, string password, string email) @safe
+    SumType!(Account, DatabaseError) registerUser(string username, string password, string email) @safe
     {
         /* Prevent use of a service identity */
         if (username.startsWith(serviceAccountPrefix))
         {
-            return DatabaseResult(DatabaseError(DatabaseErrorCode.BucketExists,
+            return SumType!(Account, DatabaseError)(DatabaseError(DatabaseErrorCode.BucketExists,
                     "Users may not register service prefix accounts"));
         }
 
@@ -89,7 +89,7 @@ public final class AccountManager
             immutable err = accountDB.view((in tx) => lookupAccount.load!"username"(tx, username));
             if (err.isNull)
             {
-                return DatabaseResult(DatabaseError(DatabaseErrorCode.BucketExists,
+                return SumType!(Account, DatabaseError)(DatabaseError(DatabaseErrorCode.BucketExists,
                         "That username isn't unavailable right now"));
             }
         }
@@ -115,7 +115,9 @@ public final class AccountManager
             return cred.save(tx);
         }
 
-        return accountDB.update(&incorporateUser);
+        immutable err = accountDB.update(&incorporateUser);
+        return err.isNull ? SumType!(Account,
+                DatabaseError)(user) : SumType!(Account, DatabaseError)(err);
     }
 
     /**
