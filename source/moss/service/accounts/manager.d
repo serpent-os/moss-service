@@ -101,12 +101,21 @@ public final class AccountManager
         user.username = username;
         user.type = AccountType.Standard;
         user.email = email;
-        immutable userErr = accountDB.update((scope tx) => user.save(tx));
-        if (!userErr.isNull)
+
+        /* Helper to incorporate a user */
+        DatabaseResult incorporateUser(scope Transaction tx) @safe
         {
-            return userErr;
+            immutable errUser = user.save(tx);
+            if (!errUser.isNull)
+            {
+                return errUser;
+            }
+            /* Update user id now */
+            cred.id = user.id;
+            return cred.save(tx);
         }
-        return accountDB.update((scope tx) => cred.save(tx));
+
+        return accountDB.update(&incorporateUser);
     }
 
     /**
