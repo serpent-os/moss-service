@@ -220,6 +220,35 @@ public final class AccountManager
         return accountDB.update((scope tx) => token.save(tx));
     }
 
+    /**
+     * Construct a new group.
+     */
+    SumType!(Group, DatabaseError) createGroup(Group group) @safe
+    {
+        /* Ensure we can store this in the DB.. */
+        group.id = 0;
+        group.users = null;
+
+        group.name = group.name.strip();
+        group.slug = group.slug.strip();
+        enforceHTTP(!group.name.empty, HTTPStatus.badRequest, "Group name empty");
+        enforceHTTP(!group.slug.empty, HTTPStatus.badRequest, "Group slug empty");
+
+        {
+            Group lookup;
+            immutable err = accountDB.view((in tx) => lookup.load!"slug"(tx, group.slug));
+            if (err.isNull)
+            {
+                return SumType!(Group, DatabaseError)(DatabaseError(DatabaseErrorCode.BucketExists,
+                        "Group already exists with that slug"));
+            }
+        }
+
+        immutable err = accountDB.update((scope tx) => group.save(tx));
+        return err.isNull ? SumType!(Group,
+                DatabaseError)(group) : SumType!(Group, DatabaseError)(err);
+    }
+
 private:
 
     Database accountDB;
