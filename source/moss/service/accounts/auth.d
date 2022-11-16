@@ -125,7 +125,7 @@ public struct AccountAuthentication
     /**
      * Returns: true if a bearer token is being used
      */
-    pure @property bool isBearerToken() @safe @nogc nothrow const
+    pragma(inline, true) pure @property bool isBearerToken() @safe @nogc nothrow const
     {
         return (mode & AccessMode.BearerToken) == AccessMode.BearerToken;
     }
@@ -133,7 +133,7 @@ public struct AccountAuthentication
     /**
      * Returns: true if an access token is being used
      */
-    pure @property bool isAccessToken() @safe @nogc nothrow const
+    pragma(inline, true) pure @property bool isAccessToken() @safe @nogc nothrow const
     {
         return (mode & AccessMode.AccessToken) == AccessMode.AccessToken;
     }
@@ -141,7 +141,7 @@ public struct AccountAuthentication
     /**
      * Returns: true if a web connection is being used
      */
-    pure @property bool isWeb() @safe @nogc nothrow const
+    pragma(inline, true) pure @property bool isWeb() @safe @nogc nothrow const
     {
         return (mode & AccessMode.WebConnection) == AccessMode.WebConnection;
     }
@@ -149,7 +149,7 @@ public struct AccountAuthentication
     /**
      * Returns: true if an API connection (REST) is being used
      */
-    pure @property bool isAPI() @safe @nogc nothrow const
+    pragma(inline, true) pure @property bool isAPI() @safe @nogc nothrow const
     {
         return (mode & AccessMode.APIConnection) == AccessMode.APIConnection;
     }
@@ -157,7 +157,7 @@ public struct AccountAuthentication
     /**
      * Returns: true if the token is for a service account
      */
-    pure @property bool isServiceAccount() @safe @nogc nothrow const
+    pragma(inline, true) pure @property bool isServiceAccount() @safe @nogc nothrow const
     {
         return accountType == AccountType.Service;
     }
@@ -165,7 +165,7 @@ public struct AccountAuthentication
     /**
      * Returns: true if the token is for a user account
      */
-    pure @property bool isUserAccount() @safe @nogc nothrow const
+    pragma(inline, true) pure @property bool isUserAccount() @safe @nogc nothrow const
     {
         return accountType == AccountType.Standard;
     }
@@ -173,7 +173,7 @@ public struct AccountAuthentication
     /**
      * Returns: true if the token is for a bot account
      */
-    pure @property bool isBotAccount() @safe @nogc nothrow const
+    pragma(inline, true) pure @property bool isBotAccount() @safe @nogc nothrow const
     {
         return accountType == AccountType.Bot;
     }
@@ -181,7 +181,7 @@ public struct AccountAuthentication
     /**
      * Returns: true if the token is expired
      */
-    pure @property bool isExpired() @safe @nogc nothrow const
+    pragma(inline, true) pure @property bool isExpired() @safe @nogc nothrow const
     {
         return (mode & AccessMode.Expired) == AccessMode.Expired;
     }
@@ -189,7 +189,7 @@ public struct AccountAuthentication
     /**
      * Returns: true if the token is NOT expired
      */
-    pure @property bool isNotExpired() @safe @nogc nothrow const
+    pragma(inline, true) pure @property bool isNotExpired() @safe @nogc nothrow const
     {
         return !isExpired();
     }
