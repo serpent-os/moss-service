@@ -80,7 +80,7 @@ import moss.service.tokens.manager;
     {
         accountManager.authenticateUser(username, password).match!((Account user) {
             logInfo(format!"User successfully logged in: %s [%s]"(user.username, user.id));
-            startSession();
+            startSession(user);
         }, (DatabaseError e) {
             logError(format!"Failed login for user '%s': %s"(username, e));
             endSession();
@@ -112,9 +112,12 @@ import moss.service.tokens.manager;
             endSession();
         }
         enforceHTTP(policy, HTTPStatus.forbidden, "Policy must be accepted");
-        immutable err = accountManager.registerUser(username, password, emailAddress);
-        enforceHTTP(err.isNull, HTTPStatus.forbidden, err.message);
-        startSession();
+        accountManager.registerUser(username, password, emailAddress).match!((Account act) {
+            startSession(act);
+        }, (DatabaseError err) {
+            endSession();
+            throw new HTTPStatusException(HTTPStatus.forbidden, err.message);
+        });
     }
 
 private:
@@ -122,7 +125,7 @@ private:
     /**
      * Start a login session
      */
-    void startSession() @safe
+    void startSession(Account account) @safe
     {
         logError("startSession(): Not yet implemented");
     }
