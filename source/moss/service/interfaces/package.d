@@ -117,8 +117,16 @@ public struct ServiceEnrolmentRequest
 public interface ServiceEnrolmentAPI
 {
     /**
-     * No-op: Services must implememt their own functionality
-     * Clients must use requestFilter
+     * This is a hack to satisfy the compiler. When using registerRestInterface,
+     * the implementation of this interface should provide its own authenticate()
+     * method - typically using the AppAuthenticator mixin.
+     *
+     * Due to our use of decorators to control high level access - compilation
+     * is broken with `RestInterfaceClient` - thus this static no-op is provided
+     * to allow client + server to use the same code.
+     *
+     * Note that in order to actually use RestInterfaceClient successfully one must
+     * provide the correct Authorization header in the `.requestFilter` method.
      */
     static void authenticate(HTTPServerRequest req, HTTPServerResponse res) @safe
     {
