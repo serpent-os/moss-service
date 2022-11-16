@@ -222,6 +222,10 @@ public final class AccountManager
 
     /**
      * Construct a new group.
+     *
+     * Params:
+     *      group = Template for the new group
+     * Returns: A populated Group on success, or a DatabaseError
      */
     SumType!(Group, DatabaseError) createGroup(Group group) @safe
     {
@@ -231,9 +235,16 @@ public final class AccountManager
 
         group.name = group.name.strip();
         group.slug = group.slug.strip();
-        enforceHTTP(!group.name.empty, HTTPStatus.badRequest, "Group name empty");
-        enforceHTTP(!group.slug.empty, HTTPStatus.badRequest, "Group slug empty");
-
+        if (group.name.empty)
+        {
+            return SumType!(Group, DatabaseError)(DatabaseError(DatabaseErrorCode.UncaughtException,
+                    "Group name empty"));
+        }
+        if (group.slug.empty)
+        {
+            return SumType!(Group, DatabaseError)(DatabaseError(DatabaseErrorCode.UncaughtException,
+                    "Group slug empty"));
+        }
         {
             Group lookup;
             immutable err = accountDB.view((in tx) => lookup.load!"slug"(tx, group.slug));
