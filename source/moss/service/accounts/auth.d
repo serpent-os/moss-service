@@ -21,6 +21,7 @@ import moss.service.accounts.manager;
 import moss.service.tokens;
 import moss.service.tokens.manager;
 import moss.service.models.account;
+import std.typecons : Nullable;
 
 import std.string : strip, split;
 
@@ -33,6 +34,20 @@ private enum AccessMode
     APIConnection = 1 << 4,
     Expired = 1 << 5,
 };
+
+/**
+ * Returns: the associated token for the incoming connection if one exists.
+ *
+ * Params:
+ *      request = Incoming request
+ */
+public Nullable!(Token, Token.init) token(scope HTTPServerRequest request) @safe
+{
+    Token lookup = () @trusted {
+        return request.context.get!Token("token", Token.init);
+    }();
+    return Nullable!(Token, Token.init)(lookup);
+}
 
 /**
  * Attempt to determine authentication from the current web context
