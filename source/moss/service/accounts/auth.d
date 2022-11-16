@@ -17,13 +17,13 @@ module moss.service.accounts.auth;
 
 import vibe.d;
 
+public import vibe.web.auth;
 import moss.service.accounts.manager;
+import moss.service.models.account;
 import moss.service.tokens;
 import moss.service.tokens.manager;
-import moss.service.models.account;
+import std.string : split, strip;
 import std.typecons : Nullable;
-
-import std.string : strip, split;
 
 private enum AccessMode
 {
