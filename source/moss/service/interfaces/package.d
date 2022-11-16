@@ -22,6 +22,7 @@ module moss.service.interfaces;
 import vibe.d;
 
 import moss.service.models.endpoints : EndpointStatus;
+import vibe.web.auth;
 
 /**
  * Enumeration of endpoints
@@ -112,18 +113,21 @@ public struct ServiceEnrolmentRequest
  * then replying with either a .decline() or .accept()
  * call issuing the corresponding token sets.
  */
-@path("api/v1/services")
+@requiresAuth @path("api/v1/services")
 public interface ServiceEnrolmentAPI
 {
     /**
      * Enrol the service
+     *
+     * At this point, no authentication is in place. Handshake part 1.
      */
     @path("enrol") @method(HTTPMethod.POST)
-    void enrol(ServiceEnrolmentRequest request) @safe;
+    @noAuth void enrol(ServiceEnrolmentRequest request) @safe;
 
     /**
      * Safely enumerate endpoints
      */
+    @auth((Role.web | Role.API) & Role.accessToken & Role.notExpired)
     @path("enumerate") @method(HTTPMethod.GET) VisibleEndpoint[] enumerate() @safe;
 
     /**
@@ -135,30 +139,35 @@ public interface ServiceEnrolmentAPI
      * This completes the pairing process. If pairing is not
      * possible, raise an error.
      */
+    @auth(Role.notExpired & Role.API & Role.serviceAccount & Role.bearerToken)
     @path("accept") @method(HTTPMethod.POST) void accept(ServiceEnrolmentRequest request) @safe;
 
     /**
      * Decline an enrolment request
      */
+    @auth(Role.notExpired & Role.API & Role.serviceAccount & Role.bearerToken)
     @path("decline") @method(HTTPMethod.POST) void decline() @safe;
 
     /**
      * Get a new API token
      *
-     * The Issue Token must be used to get a new API token
+     * The current bearer token must be used to get a new access token
      */
+    @auth(Role.notExpired & Role.API & Role.serviceAccount & Role.bearerToken)
     @path("refresh_token") @method(HTTPMethod.GET) string refreshToken() @safe;
 
     /**
-     * Get a new Issue Token
+     * Get a new Issue Token - old token may be expired
      *
      * The existing Issue token will be replaced
      */
+    @auth(Role.API & Role.serviceAccount & Role.bearerToken)
     @path("refresh_issue_token") @method(HTTPMethod.GET) string refreshIssueToken() @safe;
 
     /**
      * End relationship of services
      */
+    @auth(Role.notExpired & Role.API & Role.serviceAccount & Role.bearerToken)
     @path("leave") @method(HTTPMethod.POST)
     void leave() @safe;
 }
