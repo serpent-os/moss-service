@@ -18,6 +18,7 @@ module moss.service.accounts.web;
 import vibe.d;
 import vibe.web.validation;
 import moss.service.accounts.manager;
+import moss.service.tokens;
 import moss.service.tokens.manager;
 
 /**
@@ -127,7 +128,17 @@ private:
      */
     void startSession(Account account) @safe
     {
-        logError("startSession(): Not yet implemented");
+        TokenPayload payload;
+        payload.uid = account.id;
+        payload.act = account.type;
+        payload.sub = account.username;
+        Token tk = tokenManager.createAPIToken(payload);
+        tokenManager.signToken(tk).match!((string encoded) {
+            Session sess = response.startSession();
+            sess.set("accessToken", encoded);
+        }, (TokenError error) {
+            throw new HTTPStatusException(HTTPStatus.internalServerError, error.message);
+        });
     }
 
     /**
@@ -135,7 +146,6 @@ private:
      */
     void endSession() @safe
     {
-        logError("endSession(): Not yet implemented");
         terminateSession();
     }
 
