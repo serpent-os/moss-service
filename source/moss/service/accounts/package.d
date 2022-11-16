@@ -17,6 +17,7 @@ module moss.service.accounts;
 
 public import moss.service.accounts.auth;
 public import moss.service.accounts.manager;
+public import moss.service.accounts.web;
 
 /**
  * All service accounts are prefixed with svc- and cannot be used
