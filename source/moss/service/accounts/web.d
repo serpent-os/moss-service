@@ -28,7 +28,7 @@ import moss.service.tokens.manager;
  *  GET /login
  *  GET /register
  */
-@path("accounts") public class AccountsWeb
+@path("accounts") public abstract class AccountsWeb
 {
     @disable this();
 
@@ -39,11 +39,14 @@ import moss.service.tokens.manager;
      *      accountManager = Account management
      *      tokenManager = Token management
      */
-    this(AccountManager accountManager) @safe
+    this(AccountManager accountManager, TokenManager tokenManager) @safe
     {
         this.accountManager = accountManager;
         this.tokenManager = tokenManager;
     }
+
+    @path("login") @method(HTTPMethod.GET) abstract void renderLogin() @safe;
+    @path("register") @method(HTTPMethod.GET) abstract void renderRegister() @safe;
 
     /**
      * Install account management into web app
