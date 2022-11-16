@@ -117,6 +117,16 @@ public struct ServiceEnrolmentRequest
 public interface ServiceEnrolmentAPI
 {
     /**
+     * No-op: Services must implememt their own functionality
+     * Clients must use requestFilter
+     */
+    static void authenticate(HTTPServerRequest req, HTTPServerResponse res) @safe
+    {
+        throw new HTTPStatusException(HTTPStatus.notImplemented,
+                ".authenticate() method should have been overriden!");
+    }
+
+    /**
      * Enrol the service
      *
      * At this point, no authentication is in place. Handshake part 1.
