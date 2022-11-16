@@ -41,7 +41,7 @@ private enum AccessMode
  * Params:
  *      request = Incoming request
  */
-public Nullable!(Token, Token.init) token(scope HTTPServerRequest request) @safe
+public Nullable!(Token, Token.init) requestToken(scope HTTPServerRequest request) @safe
 {
     Token lookup = () @trusted {
         return request.context.get!Token("token", Token.init);
