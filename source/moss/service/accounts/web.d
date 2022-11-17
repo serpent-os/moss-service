@@ -134,8 +134,10 @@ private:
         payload.sub = account.username;
         Token tk = tokenManager.createAPIToken(payload);
         tokenManager.signToken(tk).match!((string encoded) {
-            Session sess = response.startSession();
+            Session sess = request.session ? request.session : response.startSession();
             sess.set("accessToken", encoded);
+            sess.set("accountID", account.id);
+            sess.set("accountName", account.username);
         }, (TokenError error) {
             throw new HTTPStatusException(HTTPStatus.internalServerError, error.message);
         });
