@@ -233,6 +233,21 @@ public final class AccountManager
     }
 
     /**
+     * Grab a group
+     *
+     * Params:
+     *      groupName = Specific group name
+     * Returns: Group on success, DatabasError on failure
+     */
+    SumType!(Group, DatabaseError) getGroup(string groupName) @safe
+    {
+        Group lookup;
+        immutable err = accountDB.view((in tx) => lookup.load!"slug"(tx, groupName));
+        return err.isNull ? SumType!(Group,
+                DatabaseError)(lookup) : SumType!(Group, DatabaseError)(err);
+    }
+
+    /**
      * Construct a new group.
      *
      * Params:
