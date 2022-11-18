@@ -32,6 +32,31 @@ import std.string : format;
 import vibe.d;
 
 /**
+ * AccountManager has some built in groups to make life
+ * easier from a simplistic permission model PoV
+ */
+public static enum BuiltinGroups : string
+{
+    /**
+     * Special case administrative user group
+     */
+    Admin = "admin",
+
+    /**
+     * Standard user group
+     */
+    Users = "users"
+};
+
+/**
+ * Baked in groups
+ */
+private static immutable requiredGroups = [
+    Group(0, BuiltinGroups.Users, "Standard users"),
+    Group(0, BuiltinGroups.Admin, "Administrators"),
+];
+
+/**
  * The AccountManager hosts all account management within
  * its own DB tree.
  */
@@ -52,6 +77,24 @@ public final class AccountManager
         auto err = accountDB.update((scope tx) => tx.createModel!(Credential,
                 Account, Group, BearerToken));
         enforceHTTP(err.isNull, HTTPStatus.internalServerError, err.message);
+
+        /* Now we need some *internal* groups for things to function correctly. */
+        static foreach (group; requiredGroups)
+        {
+            {
+                getGroup(group.slug).match!((Group g) {
+                    logDiagnostic(format!"requiredGroup exists: %s"(group.slug));
+                }, (DatabaseError err) {
+                    enforceHTTP(err.code != DatabaseErrorCode.BucketNotFound,
+                        HTTPStatus.internalServerError, "Failed to integrate requiredGroups");
+                    createGroup(group).match!((Group g) {
+                        logInfo(format!"Created requiredGroup: %s"(group.slug));
+                    }, (DatabaseError err) {
+                        throw new HTTPStatusException(HTTPStatus.internalServerError, err.message);
+                    });
+                });
+            }
+        }
     }
 
     /**
@@ -408,12 +451,16 @@ public final class AccountManager
 
             /* Remove the accountID in group + user membership */
             lookup.members.sort;
-            lookup.members = () @trusted { return lookup.members.uniq.filter!((el) => el == accountID).array; }();
+            lookup.members = () @trusted {
+                return lookup.members.uniq.filter!((el) => el == accountID).array;
+            }();
 
             /* Likewise do the same for the account group membership */
             account.groups ~= lookup.id;
             account.groups.sort;
-            account.groups = () @trusted { return account.groups.uniq.filter!((el) => el == lookup.id).array; }();
+            account.groups = () @trusted {
+                return account.groups.uniq.filter!((el) => el == lookup.id).array;
+            }();
 
             /* Now store account */
             immutable gstErr = lookup.save(tx);
