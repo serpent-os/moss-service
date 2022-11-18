@@ -33,7 +33,8 @@ private enum AccessMode
     WebConnection = 1 << 3,
     APIConnection = 1 << 4,
     Expired = 1 << 5,
-};
+    Admin = 1 << 6,
+}
 
 /**
  * Returns: the associated token for the incoming connection if one exists.
@@ -97,6 +98,12 @@ public struct AccountAuthentication
                 HTTPStatus.forbidden, "Supplied token is not valid for this instance");
 
         accountType = connectionToken.payload.act;
+
+        /* Establish admin permissions */
+        if (connectionToken.payload.admin)
+        {
+            mode |= AccessMode.Admin;
+        }
 
         /* Set the purpose */
         switch (connectionToken.payload.purpose)
@@ -192,6 +199,14 @@ public struct AccountAuthentication
     pragma(inline, true) pure @property bool isNotExpired() @safe @nogc nothrow const
     {
         return !isExpired();
+    }
+
+    /**
+     * Returns: true if this token is for an admin
+     */
+    pragma(inline, true) pure @property bool isAdmin() @safe @nogc nothrow const
+    {
+        return (mode & AccessMode.Admin) == AccessMode.Admin;
     }
 
 private:
