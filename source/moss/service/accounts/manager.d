@@ -46,7 +46,7 @@ public static enum BuiltinGroups : string
      * Standard user group
      */
     Users = "users"
-};
+}
 
 /**
  * Baked in groups
