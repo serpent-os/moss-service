@@ -27,6 +27,7 @@ import moss.service.models.bearertoken;
 import moss.service.models.group;
 import std.string : format;
 import vibe.d;
+import std.algorithm : canFind;
 
 import moss.service.accounts : serviceAccountPrefix;
 
@@ -269,6 +270,37 @@ public final class AccountManager
         immutable err = accountDB.update((scope tx) => group.save(tx));
         return err.isNull ? SumType!(Group,
                 DatabaseError)(group) : SumType!(Group, DatabaseError)(err);
+    }
+
+    /**
+     * Returns: true if the given account is in the specified group
+     * Params:
+     *      accountID = Unique account identifier
+     *      groupName = Unique group name
+     */
+    SumType!(bool, DatabaseError) accountInGroup(in AccountIdentifier accountID, string groupName) @safe
+    {
+        Group lookup;
+        Account account;
+
+        /* Firstly, make sure the group even exists.. */
+        {
+            immutable err = accountDB.view((in tx) => lookup.load!"slug"(tx, groupName));
+            if (!err.isNull)
+            {
+                return SumType!(bool, DatabaseError)(err);
+            }
+        }
+
+        /* Make sure we can find the user */
+        immutable err = accountDB.view((in tx) => account.load(tx, accountID));
+        if (!err.isNull)
+        {
+            return SumType!(bool, DatabaseError)(err);
+        }
+
+        /* Now ensure we can find it */
+        return SumType!(bool, DatabaseError)(account.groups.canFind!((el) => el == lookup.id));
     }
 
 private:
