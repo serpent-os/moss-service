@@ -99,6 +99,7 @@ import moss.service.tokens.manager;
      *      password = New password
      *      confirmPassword = Validate password
      *      policy = Ensure policy is accepted
+     * Throws: HTTPStatusException if registration is forbidden
      */
     final @method(HTTPMethod.POST) @path("register") void handleRegistration(ValidUsername username,
             ValidEmail emailAddress, ValidPassword password,
@@ -125,6 +126,10 @@ private:
 
     /**
      * Start a login session
+     *
+     * Params:
+     *      account = Account to start a session with
+     * Throws: HTTPStatusException if token construction fails
      */
     void startSession(Account account) @safe
     {
