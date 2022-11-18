@@ -125,6 +125,11 @@ public struct TokenPayload
     string iss;
 
     /**
+     * Administrative token: In some specified admin group or whichever.
+     */
+    bool admin;
+
+    /**
      * User ID
      */
     AccountIdentifier uid = 0;
