@@ -48,5 +48,5 @@ public @Model struct Group
     /**
      * All the accounts within our group
      */
-    AccountIdentifier[] users;
+    AccountIdentifier[] members;
 }

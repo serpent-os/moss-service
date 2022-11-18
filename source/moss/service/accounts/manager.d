@@ -23,13 +23,13 @@ import libsodium;
 import moss.db.keyvalue;
 import moss.db.keyvalue.interfaces;
 import moss.db.keyvalue.orm;
+import moss.service.accounts : serviceAccountPrefix;
 import moss.service.models.bearertoken;
 import moss.service.models.group;
+import std.algorithm : canFind, filter, sort, uniq;
+import std.array : array;
 import std.string : format;
 import vibe.d;
-import std.algorithm : canFind;
-
-import moss.service.accounts : serviceAccountPrefix;
 
 /**
  * The AccountManager hosts all account management within
@@ -258,7 +258,7 @@ public final class AccountManager
     {
         /* Ensure we can store this in the DB.. */
         group.id = 0;
-        group.users = null;
+        group.members = null;
 
         group.name = group.name.strip();
         group.slug = group.slug.strip();
@@ -316,6 +316,129 @@ public final class AccountManager
 
         /* Now ensure we can find it */
         return SumType!(bool, DatabaseError)(account.groups.canFind!((el) => el == lookup.id));
+    }
+
+    /**
+     * Add an account to the given groups
+     *
+     * Params:
+     *      accountID = Unique account identifier
+     *      groups = Group names to add to
+     * Returns: An error if one occurred
+     */
+    DatabaseResult addAccountToGroups(in AccountIdentifier accountID, string[] groups) @safe
+    {
+        DatabaseResult accountToGroupTx(scope Transaction tx, string group) @safe
+        {
+            Group lookup;
+            Account account;
+
+            immutable groupErr = lookup.load!"slug"(tx, group);
+            if (!groupErr.isNull)
+            {
+                return groupErr;
+            }
+            immutable accountErr = account.load(tx, accountID);
+            if (!accountErr.isNull)
+            {
+                return accountErr;
+            }
+
+            /* Set the accountID in group + user membership */
+            lookup.members ~= accountID;
+            lookup.members.sort;
+            lookup.members = () @trusted { return lookup.members.uniq.array; }();
+
+            /* Likewise do the same for the account group membership */
+            account.groups ~= lookup.id;
+            account.groups.sort;
+            account.groups = () @trusted { return account.groups.uniq.array; }();
+
+            /* Now store account */
+            immutable gstErr = lookup.save(tx);
+            if (!gstErr.isNull)
+            {
+                return gstErr;
+            }
+            immutable actErr = account.save(tx);
+            if (!actErr.isNull)
+            {
+                return actErr;
+            }
+            return NoDatabaseError;
+        }
+
+        foreach (group; groups)
+        {
+            immutable err = accountDB.update((scope tx) => accountToGroupTx(tx, group));
+            if (!err.isNull)
+            {
+                return err;
+            }
+        }
+
+        return NoDatabaseError;
+    }
+
+    /**
+     * Remove an account from the given groups
+     *
+     * Params:
+     *      accountID = Unique account identifier
+     *      groups = Group names to remove the account from
+     * Returns: An error if one occurred
+     */
+    DatabaseResult removeAccountFromGroups(in AccountIdentifier accountID, string[] groups) @safe
+    {
+        DatabaseResult accountToGroupTx(scope Transaction tx, string group) @safe
+        {
+            Group lookup;
+            Account account;
+
+            immutable groupErr = lookup.load!"slug"(tx, group);
+            if (!groupErr.isNull)
+            {
+                return groupErr;
+            }
+            immutable accountErr = account.load(tx, accountID);
+            if (!accountErr.isNull)
+            {
+                return accountErr;
+            }
+
+            /* Remove the accountID in group + user membership */
+            lookup.members.sort;
+            lookup.members = () @trusted { return lookup.members.uniq.filter!((el) => el == accountID).array; }();
+
+            /* Likewise do the same for the account group membership */
+            account.groups ~= lookup.id;
+            account.groups.sort;
+            account.groups = () @trusted { return account.groups.uniq.filter!((el) => el == lookup.id).array; }();
+
+            /* Now store account */
+            immutable gstErr = lookup.save(tx);
+            if (!gstErr.isNull)
+            {
+                return gstErr;
+            }
+            immutable actErr = account.save(tx);
+            if (!actErr.isNull)
+            {
+                return actErr;
+            }
+            return NoDatabaseError;
+        }
+
+        foreach (group; groups)
+        {
+            immutable err = accountDB.update((scope tx) => accountToGroupTx(tx, group));
+            if (!err.isNull)
+            {
+                return err;
+            }
+        }
+
+        return NoDatabaseError;
     }
 
 private:
