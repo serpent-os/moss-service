@@ -109,6 +109,16 @@ public @Model struct AvalancheEndpoint
     string statusText;
 
     /**
+     * Current bearer token
+     */
+    string bearerToken;
+
+    /**
+     * Current API token
+     */
+    string apiToken;
+
+    /**
      * Linked service account
      */
     AccountIdentifier serviceAccount;
@@ -143,6 +153,16 @@ public @Model struct SummitEndpoint
      * Special display text
      */
     string statusText;
+
+    /**
+     * Current bearer token
+     */
+    string bearerToken;
+
+    /**
+     * Current API token
+     */
+    string apiToken;
 
     /**
      * Linked service account
