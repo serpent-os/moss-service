@@ -131,6 +131,11 @@ public struct TokenPayload
     string iss;
 
     /**
+     * Intended audience / use pattern
+     */
+    string aud;
+
+    /**
      * Administrative token: In some specified admin group or whichever.
      */
     bool admin;
