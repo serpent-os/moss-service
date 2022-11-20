@@ -39,10 +39,15 @@ private enum AccessMode
 /**
  * Returns: the associated token for the incoming connection if one exists.
  *
+ * Note: This is adapted for use with the `@before` decorator to stash a token
+ * in a REST API function parameter.
+ *
  * Params:
  *      request = Incoming request
+ *      response = Outgoing response
  */
-public Nullable!(Token, Token.init) requestToken(scope HTTPServerRequest request) @safe
+public Nullable!(Token, Token.init) retrieveToken(
+        scope return HTTPServerRequest request, scope return HTTPServerResponse response) @safe
 {
     Token lookup = () @trusted {
         return request.context.get!Token("token", Token.init);
