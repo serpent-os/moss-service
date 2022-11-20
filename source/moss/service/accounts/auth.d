@@ -46,13 +46,13 @@ private enum AccessMode
  *      request = Incoming request
  *      response = Outgoing response
  */
-public Nullable!(Token, Token.init) retrieveToken(
-        scope return HTTPServerRequest request, scope return HTTPServerResponse response) @safe
+public NullableToken retrieveToken(scope return HTTPServerRequest request,
+        scope return HTTPServerResponse response) @safe
 {
     Token lookup = () @trusted {
         return request.context.get!Token("token", Token.init);
     }();
-    return Nullable!(Token, Token.init)(lookup);
+    return NullableToken(lookup);
 }
 
 /**

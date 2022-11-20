@@ -20,8 +20,14 @@ import std.stdint : uint64_t;
 import std.sumtype;
 import vibe.d;
 import vibe.data.json;
+import std.typecons : Nullable;
 
 import moss.service.models.account : AccountIdentifier, AccountType;
+
+/**
+ * Make APIs more obvious
+ */
+public alias NullableToken = Nullable!(Token, Token.init);
 
 /** 
  * Our JWT claims require a token *purpose*
