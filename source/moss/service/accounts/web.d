@@ -153,7 +153,10 @@ private:
      */
     void endSession() @safe
     {
-        terminateSession();
+        if (request.session)
+        {
+            terminateSession();
+        }
     }
 
     AccountManager accountManager;
