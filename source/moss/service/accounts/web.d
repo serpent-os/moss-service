@@ -40,10 +40,11 @@ import moss.service.tokens.manager;
      *      accountManager = Account management
      *      tokenManager = Token management
      */
-    this(AccountManager accountManager, TokenManager tokenManager) @safe
+    this(AccountManager accountManager, TokenManager tokenManager, string issuer) @safe
     {
         this.accountManager = accountManager;
         this.tokenManager = tokenManager;
+        this.issuer = issuer;
     }
 
     @path("login") @method(HTTPMethod.GET) abstract void renderLogin() @safe;
@@ -137,6 +138,9 @@ private:
         payload.uid = account.id;
         payload.act = account.type;
         payload.sub = account.username;
+        /* aud is always web-user, whereas issuer is set on per impl. basis */
+        payload.aud = "web-user";
+        payload.iss = this.issuer;
         Token tk = tokenManager.createAPIToken(payload);
         tokenManager.signToken(tk).match!((string encoded) {
             Session sess = request.session ? request.session : response.startSession();
@@ -159,6 +163,7 @@ private:
         }
     }
 
+    string issuer;
     AccountManager accountManager;
     TokenManager tokenManager;
 }
