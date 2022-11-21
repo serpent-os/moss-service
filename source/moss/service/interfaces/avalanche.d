@@ -88,6 +88,20 @@ struct PackageBuild
  */
 @requiresAuth @path("/api/v1/avalanche") public interface AvalancheAPI
 {
+
+    /**
+     * Stub implementation for clients to build. Use `.requestFilter`
+     *
+     * Params:
+     *      req = incoming request
+     *      res = outgoing response
+     */
+    static void authenticate(HTTPServerRequest req, HTTPServerResponse res) @safe
+    {
+        throw new HTTPStatusException(HTTPStatus.notImplemented,
+                ".authenticate() method should have been overriden!");
+    }
+
     /**
      * Perform an authenticated build using the details specified in the
      * request payload.
