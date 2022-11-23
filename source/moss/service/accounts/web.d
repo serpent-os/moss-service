@@ -29,7 +29,7 @@ import moss.service.tokens.manager;
  *  GET /login
  *  GET /register
  */
-@path("accounts") public abstract class AccountsWeb
+@path("/accounts") public abstract class AccountsWeb
 {
     @disable this();
 
@@ -49,17 +49,6 @@ import moss.service.tokens.manager;
 
     @path("login") @method(HTTPMethod.GET) abstract void renderLogin() @safe;
     @path("register") @method(HTTPMethod.GET) abstract void renderRegister() @safe;
-
-    /**
-     * Install account management into web app
-     *
-     * Params:
-     *      router = Root namespace
-     */
-    final @noRoute void configure(URLRouter router) @safe
-    {
-        router.registerWebInterface(this);
-    }
 
     /**
      * Log the session out
