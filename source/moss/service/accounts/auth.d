@@ -234,3 +234,15 @@ mixin template AppAuthenticator()
         return AccountAuthentication(accountManager, tokenManager, req, res);
     }
 }
+
+/**
+ * Similar to the AppAuthenticator mixin, relies instead on a context variable
+ */
+mixin template AppAuthenticatorContext()
+{
+    @noRoute public AccountAuthentication authenticate(scope HTTPServerRequest req,
+            scope HTTPServerResponse res) @safe
+    {
+        return AccountAuthentication(context.accountManager, context.tokenManager, req, res);
+    }
+}
