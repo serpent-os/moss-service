@@ -18,6 +18,7 @@ module moss.service;
 public import vibe.d;
 
 public import moss.service.accounts;
+public import moss.service.context;
 public import moss.service.models;
 public import moss.service.sessionstore;
 public import moss.service.tokens;
