@@ -42,6 +42,7 @@ public final class ServiceContext
         _dbPath.mkdirRecurse();
         this._cachePath = statePath.buildPath("cache");
         _cachePath.mkdirRecurse();
+        this._statePath = statePath;
 
         /* Get token manager up and running */
         _tokenManager = new TokenManager(statePath);
@@ -114,6 +115,14 @@ public final class ServiceContext
         return _cachePath;
     }
 
+    /**
+     * Returns: The state path
+     */
+    pragma(inline, true) pure @property string statePath() @safe @nogc nothrow const
+    {
+        return _statePath;
+    }
+
 private:
 
     TokenManager _tokenManager;
@@ -123,4 +132,5 @@ private:
     string _rootDirectory;
     string _dbPath;
     string _cachePath;
+    string _statePath;
 }
