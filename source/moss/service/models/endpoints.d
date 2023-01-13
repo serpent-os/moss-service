@@ -62,11 +62,6 @@ public @Model struct VesselEndpoint
      * Linked service account
      */
     AccountIdentifier serviceAccount;
-
-    /**
-     * Where is everything published?
-     */
-    string volatileIndexURI;
 }
 
 /**
