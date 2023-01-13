@@ -20,6 +20,9 @@ public import moss.service.models.account : AccountIdentifier;
 
 public import std.stdint : uint64_t;
 
+/**
+ * Well known status for an endpoint undergoing configuration
+ */
 public enum EndpointStatus
 {
     /* i.e avalanche admin needs to accept summit pairing */
