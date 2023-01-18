@@ -38,25 +38,38 @@ public enum EndpointStatus
     Operational,
 }
 
-/**
- * Persistence of a vessel endpoint
- */
-public @Model struct VesselEndpoint
+public mixin template CoreEndpoint()
 {
     /**
-     * Unique identifier for the endpoint
-     */
-    @PrimaryKey string id;
-
-    /**
-     * Pairing status
+     * Status
      */
     EndpointStatus status;
 
     /**
-     * Status display
+     * Where do we find the endpoint?
+     */
+
+    string hostAddress;
+
+    /**
+     * Special display text
      */
     string statusText;
+
+    /**
+     * Current bearer token
+     */
+    string bearerToken;
+
+    /**
+     * Current API token
+     */
+    string apiToken;
+
+    /**
+     * The instance public key
+     */
+    string publicKey;
 
     /**
      * Linked service account
@@ -65,24 +78,29 @@ public @Model struct VesselEndpoint
 }
 
 /**
- * Persistence of an avalanche endpoint
+ * Persistence of a vessel endpoint
  */
-public @Model struct AvalancheEndpoint
+public @Model struct VesselEndpoint
 {
+    mixin CoreEndpoint;
+
     /**
      * Unique identifier for the endpoint
      */
     @PrimaryKey string id;
+}
+
+/**
+ * Persistence of an avalanche endpoint
+ */
+public @Model struct AvalancheEndpoint
+{
+    mixin CoreEndpoint;
 
     /**
-     * Where can we reach this endpoint?
+     * Unique identifier for the endpoint
      */
-    string hostAddress;
-
-    /**
-     * Encoded public key
-     */
-    string publicKey;
+    @PrimaryKey string id;
 
     /**
      * Visual description for this endpoint's nature
@@ -100,31 +118,6 @@ public @Model struct AvalancheEndpoint
      * Administrator's name
      */
     string adminName;
-
-    /**
-     * Status
-     */
-    EndpointStatus status;
-
-    /**
-     * Special display text
-     */
-    string statusText;
-
-    /**
-     * Current bearer token
-     */
-    string bearerToken;
-
-    /**
-     * Current API token
-     */
-    string apiToken;
-
-    /**
-     * Linked service account
-     */
-    AccountIdentifier serviceAccount;
 }
 
 /**
@@ -132,43 +125,10 @@ public @Model struct AvalancheEndpoint
  */
 public @Model struct SummitEndpoint
 {
+    mixin CoreEndpoint;
+
     /**
      * Unique identifier for the endpoint
      */
     @PrimaryKey string id;
-
-    /**
-     * API endpoint address
-     */
-    string hostAddress;
-
-    /**
-     * Public key for the instance
-     */
-    string publicKey;
-
-    /**
-     * Status
-     */
-    EndpointStatus status;
-
-    /**
-     * Special display text
-     */
-    string statusText;
-
-    /**
-     * Current bearer token
-     */
-    string bearerToken;
-
-    /**
-     * Current API token
-     */
-    string apiToken;
-
-    /**
-     * Linked service account
-     */
-    AccountIdentifier serviceAccount;
 }
