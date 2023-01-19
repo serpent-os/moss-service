@@ -21,6 +21,23 @@ public import moss.service.models.account : AccountIdentifier;
 public import std.stdint : uint64_t;
 
 /**
+ * Simple mechanism to determine the work a node is doing.
+ * We may extend this in future for "offline", cleaning, etc.
+ */
+public enum WorkStatus
+{
+    /**
+     * Doing nothing
+     */
+    Idle = 0,
+
+    /**
+     * Doing something
+     */
+    Working,
+}
+
+/**
  * Well known status for an endpoint undergoing configuration
  */
 public enum EndpointStatus
@@ -118,6 +135,11 @@ public @Model struct AvalancheEndpoint
      * Administrator's name
      */
     string adminName;
+
+    /** 
+     * What is this builder doing?
+     */
+    WorkStatus workStatus = WorkStatus.Idle;
 }
 
 /**
