@@ -53,6 +53,12 @@ public enum EndpointStatus
 
     /* Up and running */
     Operational,
+
+    /* Banned from further use. (signature change, etc) */
+    Forbidden,
+
+    /* Previously working, lost contact */
+    Unreachable,
 }
 
 public mixin template CoreEndpoint()
