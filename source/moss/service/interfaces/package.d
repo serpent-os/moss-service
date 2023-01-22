@@ -17,3 +17,4 @@ module moss.service.interfaces;
 
 public import moss.service.interfaces.avalanche;
 public import moss.service.interfaces.endpoints;
+public import moss.service.interfaces.summit;
