@@ -142,6 +142,54 @@ public final class PairingManager
             ? cast(PairingResult) Success() : cast(PairingResult) fail(endpoint.statusText);
     }
 
+    /** 
+     * Accept an rolment request from another remote instance
+     *
+     * Params:
+     *   endpoint = endpoint
+     *   bearerToken = as returned by createBearerToken
+     *   ourRole = Our role in the relationship (i.e. Builder)
+     *   theirRole = Their role in the relationship (i.e. Summit)
+     * Returns: A pairing result
+     */
+    PairingResult acceptFrom(E)(ref E endpoint, scope const ref BearerToken bearerToken,
+            EnrolmentRole ourRole, EnrolmentRole theirRole) @safe
+    {
+        auto rapi = new RestInterfaceClient!ServiceEnrolmentAPI(endpoint.hostAddress);
+        rapi.requestFilter = (req) {
+            req.headers["Authorization"] = format!"Bearer %s"(bearerToken.rawToken);
+        };
+
+        /* Our details */
+        ServiceEnrolmentRequest req;
+        req.issuer.publicKey = context.tokenManager.publicKey;
+        req.issuer.role = ourRole;
+        req.issuer.url = instanceURI;
+
+        /* Their details */
+        req.role = theirRole;
+        req.issueToken = bearerToken.rawToken;
+
+        try
+        {
+            rapi.enrol(req, NullableToken());
+            endpoint.status = EndpointStatus.Operational;
+            endpoint.statusText = "Fully operational";
+        }
+        catch (Exception ex)
+        {
+            endpoint.status = EndpointStatus.Failed;
+            endpoint.statusText = format!"Failed: %s"(ex.message);
+        }
+
+        /* Update the model */
+        immutable err = context.appDB.update((scope tx) => endpoint.save(tx));
+        enforceHTTP(err.isNull, HTTPStatus.internalServerError, err.message);
+
+        return endpoint.status == EndpointStatus.Operational
+            ? cast(PairingResult) Success() : cast(PairingResult) fail(endpoint.statusText);
+    }
+
 private:
 
     ServiceContext context;
