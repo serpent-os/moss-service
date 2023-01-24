@@ -92,7 +92,7 @@ public final class Server(S : Application, M:
         serverSettings.useCompressionIfPossible = true;
         serverSettings.disableDistHost = true;
         /* TODO: Only enable .secure when using SSL */
-        serverSettings.sessionOptions = SessionOption.httpOnly | SessionOption.secure;
+        serverSettings.sessionOptions = SessionOption.httpOnly;
 
         /* File settings for /static/ serving */
         fileSettings = new HTTPFileServerSettings();
