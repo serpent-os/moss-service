@@ -65,4 +65,26 @@ import vibe.web.auth;
     @before!retrieveToken("token") @path("buildSucceeded") @method(HTTPMethod.POST)
     @auth(Role.notExpired & Role.API & Role.serviceAccount & Role.accessToken)
     void buildSucceeded(uint64_t taskID, Collectable[] collectables, NullableToken token) @safe;
+
+    /** 
+     * Inform dashboard that importing packages for the task failed
+     *
+     * Params:
+     *   taskID = Unique task identifier
+     *   token = Set by middleware
+     */
+    @before!retrieveToken("token") @path("importFailed") @method(HTTPMethod.POST)
+    @auth(Role.notExpired & Role.API & Role.serviceAccount & Role.accessToken)
+    void importFailed(uint64_t taskID, NullableToken token) @safe;
+
+    /** 
+     * Inform dashboard that importing packages for the task succeeded
+     *
+     * Params:
+     *   taskID = Unique task identifier
+     *   token = Set by middleware
+     */
+    @before!retrieveToken("token") @path("importSucceeded") @method(HTTPMethod.POST)
+    @auth(Role.notExpired & Role.API & Role.serviceAccount & Role.accessToken)
+    void importSucceeded(uint64_t taskID, NullableToken token) @safe;
 }
