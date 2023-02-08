@@ -32,7 +32,7 @@ public enum CollectableType : string
     /**
      * Human readable build manifest
      */
-    JSONManifest = "source-manifest",
+    JSONManifest = "json-manifest",
 
     /**
      * The build manifest
