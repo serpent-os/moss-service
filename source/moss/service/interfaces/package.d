@@ -30,14 +30,24 @@ public enum CollectableType : string
     Log = "log",
 
     /**
+     * Human readable build manifest
+     */
+    JSONManifest = "source-manifest",
+
+    /**
      * The build manifest
      */
-    Manifest = "manifest",
+    BinaryManifest = "manifest",
 
     /**
      * A binary package
      */
     Package = "package",
+
+    /**
+     * Currently untagged asset
+     */
+    Unknown = "unknown",
 }
 
 /**
