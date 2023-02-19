@@ -111,6 +111,23 @@ public @Model struct VesselEndpoint
      * Unique identifier for the endpoint
      */
     @PrimaryKey string id;
+
+    /**
+     * Visual description for this endpoint's nature
+     *
+     * i.e. sponsored by <such and such>
+     */
+    string description;
+
+    /**
+     * Administrator email address (must be up to date)
+     */
+    string adminEmail;
+
+    /**
+     * Administrator's name
+     */
+    string adminName;
 }
 
 /**
