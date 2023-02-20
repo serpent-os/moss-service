@@ -76,10 +76,10 @@ public final class PairingManager
     {
         TokenPayload payload;
         payload.iss = issuer;
-        payload.sub = serviceAccount.username;
+        payload.sub = endpoint.id;
         payload.uid = serviceAccount.id;
         payload.act = serviceAccount.type;
-        payload.aud = "avalanche";
+        payload.aud = audience;
         Token bearer = context.tokenManager.createBearerToken(payload);
 
         return context.tokenManager.signToken(bearer).match!((TokenError err) {
@@ -157,7 +157,7 @@ public final class PairingManager
     {
         auto rapi = new RestInterfaceClient!ServiceEnrolmentAPI(endpoint.hostAddress);
         rapi.requestFilter = (req) {
-            req.headers["Authorization"] = format!"Bearer %s"(bearerToken.rawToken);
+            req.headers["Authorization"] = format!"Bearer %s"(endpoint.bearerToken);
         };
 
         /* Our details */
