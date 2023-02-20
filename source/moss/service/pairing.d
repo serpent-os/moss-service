@@ -172,7 +172,7 @@ public final class PairingManager
 
         try
         {
-            rapi.enrol(req, NullableToken());
+            rapi.accept(req, NullableToken());
             endpoint.status = EndpointStatus.Operational;
             endpoint.statusText = "Fully operational";
         }
