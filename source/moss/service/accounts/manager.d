@@ -275,6 +275,21 @@ public final class AccountManager
         return accountDB.update((scope tx) => token.save(tx));
     }
 
+    /** 
+     * Retrieve an account by the ID
+     *
+     * Params:
+     *   id = User identifier
+     * Returns: Either the user or an error
+     */
+    SumType!(Account, DatabaseError) getUser(AccountIdentifier id) @safe
+    {
+        Account lookup;
+        immutable err = accountDB.view((in tx) => lookup.load(tx, id));
+        return err.isNull ? SumType!(Account,
+                DatabaseError)(lookup) : SumType!(Account, DatabaseError)(err);
+    }
+
     /**
      * Grab a group
      *
