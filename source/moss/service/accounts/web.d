@@ -130,12 +130,16 @@ private:
         /* aud is always web-user, whereas issuer is set on per impl. basis */
         payload.aud = "web-user";
         payload.iss = this.issuer;
+        payload.purpose = TokenPurpose.Authentication;
+        payload.admin = accountManager.accountInGroup(account.id,
+                BuiltinGroups.Admin).tryMatch!((bool b) => b);
         Token tk = tokenManager.createAPIToken(payload);
         tokenManager.signToken(tk).match!((string encoded) {
             Session sess = request.session ? request.session : response.startSession();
             sess.set("accessToken", encoded);
             sess.set("accountID", account.id);
             sess.set("accountName", account.username);
+            sess.set("accountAdmin", payload.admin);
         }, (TokenError error) {
             throw new HTTPStatusException(HTTPStatus.internalServerError, error.message);
         });
