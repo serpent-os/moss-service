@@ -139,7 +139,7 @@ public final class AccountManager
      */
     SumType!(Account, DatabaseError) registerUser(string username, string password, string email) @safe
     {
-        if (userRegistrationsAllowed)
+        if (!userRegistrationsAllowed)
         {
             return SumType!(Account, DatabaseError)(DatabaseError(DatabaseErrorCode.BucketNotFound,
                     "User registration is disabled"));
