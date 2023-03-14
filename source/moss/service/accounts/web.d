@@ -95,6 +95,8 @@ import moss.service.tokens.manager;
             ValidEmail emailAddress, ValidPassword password,
             Confirm!"password" confirmPassword, bool policy) @safe
     {
+        enforceHTTP(accountManager.userRegistrationsAllowed,
+                HTTPStatus.forbidden, "User registration not permitted");
         scope (exit)
         {
             redirect("/");

@@ -111,6 +111,25 @@ public final class AccountManager
     }
 
     /**
+     * Returns: true if user registrations are allowed
+     */
+    pure @property bool userRegistrationsAllowed() @safe @nogc nothrow const
+    {
+        return _userRegistrationsAllowed;
+    }
+
+    /**
+     * Toggle user registrations
+     *
+     * Params:
+     *      b = Enable user reg
+     */
+    pure @property void userRegistrationsAllowed(bool b) @safe @nogc nothrow
+    {
+        _userRegistrationsAllowed = b;
+    }
+
+    /**
      * Attempt to register the user.
      *
      * Params:
@@ -120,6 +139,12 @@ public final class AccountManager
      */
     SumType!(Account, DatabaseError) registerUser(string username, string password, string email) @safe
     {
+        if (userRegistrationsAllowed)
+        {
+            return SumType!(Account, DatabaseError)(DatabaseError(DatabaseErrorCode.BucketNotFound,
+                    "User registration is disabled"));
+        }
+
         /* Prevent use of a service identity */
         if (username.startsWith(serviceAccountPrefix))
         {
@@ -505,6 +530,7 @@ public final class AccountManager
 
 private:
 
+    bool _userRegistrationsAllowed = true;
     Database accountDB;
 }
 
