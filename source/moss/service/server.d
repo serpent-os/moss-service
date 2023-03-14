@@ -17,7 +17,6 @@ module moss.service.server;
 
 import moss.service.context;
 import vibe.d;
-import moss.service.sessionstore;
 import std.signals;
 import std.path : buildPath;
 
@@ -85,10 +84,9 @@ public final class Server(S : Application, M:
     this(string rootDirectory) @safe
     {
         _context = new ServiceContext(rootDirectory);
-        sessionStore = new DBSessionStore(_context.dbPath.buildPath("session"));
 
         _serverSettings = new HTTPServerSettings();
-        serverSettings.sessionStore = sessionStore;
+        serverSettings.sessionStore = new MemorySessionStore;
         serverSettings.useCompressionIfPossible = true;
         serverSettings.disableDistHost = true;
         /* TODO: Only enable .secure when using SSL */
@@ -122,7 +120,6 @@ public final class Server(S : Application, M:
      */
     void start() @safe
     {
-        serverSettings.sessionStore = sessionStore;
         listener = listenHTTP(_serverSettings, &handle);
         requireApp();
     }
@@ -260,7 +257,6 @@ private:
     ServiceContext _context;
     ApplicationMode _mode = ApplicationMode.Setup;
     HTTPListener listener;
-    DBSessionStore sessionStore;
     HTTPFileServerSettings fileSettings;
     HTTPServerSettings _serverSettings;
     HTTPServerRequestDelegate fileHandler;
