@@ -96,6 +96,7 @@ public final class Server(S : Application, M:
         fileSettings = new HTTPFileServerSettings();
         fileSettings.serverPathPrefix = "/static";
         fileSettings.options = HTTPFileServerOption.failIfNotFound;
+        fileSettings.maxAge = 30.days;
         fileHandler = serveStaticFiles(context.rootDirectory.buildPath("static/"), fileSettings);
     }
 
