@@ -57,11 +57,19 @@ public final class PairingManager
      *
      * Params:
      *   endpoint = Endpoint
+     * Returns: SumType of either Account or DatabaseError
      */
-    auto createEndpointAccount(E)(ref E endpoint) @safe
+    SumType!(Account, DatabaseError) createEndpointAccount(E)(ref E endpoint) @safe
     {
         immutable serviceAccountID = format!"%s%s"(serviceAccountPrefix, endpoint.id);
-        return context.accountManager.registerService(serviceAccountID, endpoint.adminEmail);
+        return context.accountManager.registerService(serviceAccountID,
+                endpoint.adminEmail).match!((Account acct) {
+            /* Got the account, update the endpoint account ID.. */
+            endpoint.serviceAccount = acct.id;
+            auto err = context.appDB.update((scope tx) => endpoint.save(tx));
+            return err.isNull ? SumType!(Account,
+                DatabaseError)(acct) : SumType!(Account, DatabaseError)(err);
+        }, (DatabaseError err) { return SumType!(Account, DatabaseError)(err); });
     }
 
     /** 
