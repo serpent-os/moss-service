@@ -301,6 +301,56 @@ public final class AccountManager
     }
 
     /** 
+     * Remove the account and associated credentials/tokens
+     *
+     * Params:
+     *   id = Unique account ID
+     * Returns: Nullable database error
+     */
+    DatabaseResult removeAccount(AccountIdentifier id) @safe
+    {
+        static DatabaseResult removalHelper(AccountIdentifier id, Transaction tx) @safe
+        {
+            Credential creds;
+            BearerToken token;
+            Account account;
+
+            /* grab the account */
+            auto eAccount = account.load(tx, id);
+            if (!eAccount.isNull)
+            {
+                return eAccount;
+            }
+
+            /* try to wipe token */
+            auto eToken = token.load(tx, id);
+            if (eToken.isNull)
+            {
+                auto err = token.remove(tx);
+                if (!err.isNull)
+                {
+                    return err;
+                }
+            }
+
+            /* try to wipe credentials */
+            auto eCred = creds.load(tx, id);
+            if (eCred.isNull)
+            {
+                auto err = creds.remove(tx);
+                if (!err.isNull)
+                {
+                    return err;
+                }
+            }
+            auto err = account.remove(tx);
+            return err;
+        }
+
+        return accountDB.update((scope tx) => removalHelper(id, tx));
+    }
+
+    /** 
      * Retrieve an account by the ID
      *
      * Params:
