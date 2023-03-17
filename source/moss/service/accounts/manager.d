@@ -322,6 +322,25 @@ public final class AccountManager
                 return eAccount;
             }
 
+            /* Handle group removals */
+            foreach (groupID; account.groups)
+            {
+                Group lookupGroup;
+                auto err = lookupGroup.load(tx, groupID);
+                if (!err.isNull)
+                {
+                    return err;
+                }
+                lookupGroup.members = () @trusted {
+                    return lookupGroup.members.filter!((id) => id == account.id).array;
+                }();
+                auto stErr = lookupGroup.save(tx);
+                if (!stErr.isNull)
+                {
+                    return stErr;
+                }
+            }
+
             /* try to wipe token */
             auto eToken = token.load(tx, id);
             if (eToken.isNull)
