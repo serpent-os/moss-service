@@ -1,3 +1,7 @@
+**This project is no longer active**
+
+---
+
 moss-service
 ------------
 
